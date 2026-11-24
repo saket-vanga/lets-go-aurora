@@ -54,7 +54,8 @@ p{margin:0}
 .muted{color:var(--mist)}
 small{font-size:13px}
 
-.view{display:flex;flex-direction:column;gap:18px;animation:rise .45s ease both}
+.view{display:flex;flex-direction:column;gap:18px}
+.view.enter{animation:rise .45s ease both}
 @keyframes rise{from{transform:translateY(10px);opacity:.4}to{transform:none;opacity:1}}
 
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);min-width:0}
@@ -200,7 +201,7 @@ button.mini:active{transform:scale(.98)}
 
 /* tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;justify-content:center;padding:8px max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));background:rgba(6,10,22,.82);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border-top:1px solid var(--line)}
-.tabs-in{display:grid;grid-template-columns:repeat(5,1fr);width:100%;max-width:520px}
+.tabs-in{display:grid;grid-template-columns:repeat(6,1fr);width:100%;max-width:560px}
 .tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;color:var(--mist);text-decoration:none;font:600 10.5px var(--body);letter-spacing:.02em}
 .tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tabs a.on{color:var(--aurora)}
@@ -217,7 +218,75 @@ button.mini:active{transform:scale(.98)}
 
 .toast{position:fixed;left:50%;bottom:calc(var(--tabh) + env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);z-index:30;background:var(--snow);color:var(--night);font-weight:600;font-size:14px;padding:9px 16px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 
-@media (prefers-reduced-motion:reduce){.view{animation:none}}
+
+/* buttons + places */
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:rgba(150,180,255,.08);color:var(--snow);border-radius:12px;padding:9px 14px;font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--aurora);color:var(--night);border-color:var(--aurora)}
+.btn.ice{border-color:rgba(143,211,255,.5);color:var(--ice)}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:10px}
+.btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.places{display:flex;flex-direction:column}
+.place{display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line)}
+.place:first-child{border-top:0}
+.place>span{flex:1;min-width:0;font-size:14.5px;font-weight:500}
+.ph{font:700 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ice);border:1px solid rgba(143,211,255,.4);border-radius:5px;padding:3px 5px;margin-right:4px;font-style:normal;vertical-align:2px}
+/* live location */
+.live{display:inline-flex;align-items:center;gap:7px;font:700 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--aurora)}
+.live i{width:9px;height:9px;border-radius:50%;background:var(--aurora);box-shadow:0 0 0 0 rgba(111,245,196,.7);animation:pulse 1.6s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 10px rgba(111,245,196,0)}100%{box-shadow:0 0 0 0 rgba(111,245,196,0)}}
+.coords{font:700 15px var(--mono);font-variant-numeric:tabular-nums;margin-top:8px}
+.big-dist{font:800 30px/1 var(--display);margin-top:10px}
+.big-dist small{font:500 14px var(--body);color:var(--mist);margin-left:6px}
+.err{color:var(--sos);font-size:14px;margin-top:8px}
+/* weather + outlook */
+.temp{font:800 30px/1 var(--display)}
+.meter{height:10px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:12px}
+.meter i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--violet),var(--aurora))}
+.ol-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ol-grade{font:800 26px/1 var(--display)}
+.ol-grade.good{color:var(--aurora)}.ol-grade.fair{color:var(--sun)}.ol-grade.low{color:var(--mist)}
+.ol-facts{display:flex;gap:16px;margin-top:10px;font:500 12px var(--mono);color:var(--mist);flex-wrap:wrap}
+.ol-facts b{color:var(--snow);font-size:14px}
+.pill{font:700 11px/1 var(--mono);padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mist)}
+.pill.good{color:var(--night);background:var(--aurora);border-color:var(--aurora)}
+.pill.fair{color:var(--night);background:var(--sun);border-color:var(--sun)}
+.upd{font:500 11px var(--mono);color:var(--mist);letter-spacing:.04em}
+/* map */
+.mapwrap{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:radial-gradient(120% 80% at 50% 0%,rgba(111,245,196,.07),transparent 60%),var(--panel-solid)}
+.mapwrap svg{display:block;width:100%;height:auto;max-height:72vh}
+.m-grid{stroke:var(--line);stroke-width:1.5;stroke-dasharray:4 8;fill:none}
+.m-glbl{fill:var(--mist);font:500 20px var(--mono);opacity:.7}
+.m-arc{stroke:var(--violet);stroke-width:2.5;stroke-dasharray:14 8;fill:none;opacity:.85}
+.m-arcl{fill:var(--violet);font:700 19px var(--mono);letter-spacing:.12em}
+.m-cty{fill:var(--mist);font:700 30px var(--display);letter-spacing:.3em;opacity:.35}
+.m-route{stroke:var(--aurora);stroke-width:5;fill:none;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(111,245,196,.6))}
+.m-fly{stroke:var(--ice);stroke-width:3;fill:none;stroke-dasharray:3 12;stroke-linecap:round}
+.m-stop{fill:var(--night);stroke:var(--aurora);stroke-width:4}
+.m-stop.today{fill:var(--aurora)}
+.m-lbl{fill:var(--snow);font:600 24px var(--body)}
+.m-lbl.today{fill:var(--aurora);font-weight:700}
+.m-me{fill:var(--ice);stroke:var(--night);stroke-width:4}
+.m-me-ring{fill:none;stroke:var(--ice);stroke-width:3;animation:ring 1.8s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes ring{from{transform:scale(.6);opacity:1}to{transform:scale(2.6);opacity:0}}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font:500 12px var(--mono);color:var(--mist)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:22px;height:0;border-top:4px solid var(--aurora)}
+.legend i.f{border-top:3px dotted var(--ice)}
+.legend i.a{border-top:3px dashed var(--violet)}
+/* packing */
+.pack{display:flex;flex-direction:column}
+.pack label{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:15px;cursor:pointer}
+.pack label:first-child{border-top:0}
+.pack input{width:22px;height:22px;accent-color:var(--aurora);flex:0 0 auto}
+.pack input:checked+span{color:var(--mist);text-decoration:line-through}
+.install{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:16px;background:linear-gradient(160deg,rgba(182,156,255,.22),rgba(111,245,196,.12));border:1px solid rgba(182,156,255,.45);font-size:14px}
+.install b{display:block;font-size:15px}
+.install button{margin-left:auto;border:0;background:transparent;color:var(--mist);font-size:22px;line-height:1;padding:0 4px}
+.sheet a.btn{align-self:flex-start;background:var(--night);color:var(--snow);border:0}
+.sheet .row2{display:flex;gap:10px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){.view.enter{animation:none}.live i,.m-me-ring{animation:none}}
 </style>
 
 <canvas id="sky" aria-hidden="true"></canvas>
@@ -235,6 +304,7 @@ button.mini:active{transform:scale(.98)}
 
   <section class="view" id="v-now"></section>
   <section class="view" id="v-days" hidden></section>
+  <section class="view" id="v-map" hidden></section>
   <section class="view" id="v-flights" hidden></section>
   <section class="view" id="v-sos" hidden></section>
   <section class="view" id="v-tools" hidden></section>
@@ -243,6 +313,7 @@ button.mini:active{transform:scale(.98)}
 <nav class="tabs" aria-label="Sections"><div class="tabs-in">
   <a href="#now" data-tab="now"><svg viewBox="0 0 24 24"><path d="M2 18c3-7 7-11 10-11s7 4 10 11"/><path d="M6 18c2-4 4-6 6-6s4 2 6 6"/><path d="M12 3v1M5 5l.7.7M19 5l-.7.7"/></svg>Now</a>
   <a href="#days" data-tab="days"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Days</a>
+  <a href="#map" data-tab="map"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>Map</a>
   <a href="#flights" data-tab="flights"><svg viewBox="0 0 24 24"><path d="M10.5 13.5 3 11l1.5-1.5 8 1 4-4a2 2 0 0 1 3 3l-4 4 1 8L15 23l-2.5-7.5"/></svg>Flights</a>
   <a href="#sos" data-tab="sos" class="sos"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>SOS</a>
   <a href="#tools" data-tab="tools"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Tools</a>
@@ -251,7 +322,7 @@ button.mini:active{transform:scale(.98)}
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Hotel card for drivers">
   <div><div class="say" id="sayLocal"></div><div class="en">Please take me to this hotel.</div></div>
   <div><div class="hotel" id="sheetHotel"></div><div class="sim" id="sheetSim"></div></div>
-  <button type="button" id="sheetClose">Close</button>
+  <div class="row2"><a class="btn" id="sheetMap" href="#" target="_blank" rel="noopener">Open in Google Maps</a><button type="button" id="sheetClose">Close</button></div>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -323,6 +394,190 @@ const DAYS=[
 ];
 DAYS.forEach((d,i)=>{d.n=i+1;d.start=Date.parse(d.date+'T00:00:00Z')-d.tz*H;d.flights=FLIGHTS.filter(f=>f.day===d.n)});
 const TRIP_END=FLIGHTS[3].a+3*H;
+
+/* ---------- places + Google Maps ---------- */
+const gq=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+const gd=(q,o)=>'https://www.google.com/maps/dir/?api=1'+(o?'&origin='+encodeURIComponent(o):'')+'&destination='+encodeURIComponent(q);
+const HQ={'Quality Hotel Grand Tromsø':'Quality Hotel Grand Tromsø','Thon Hotel Lofoten':'Thon Hotel Lofoten Svolvær','Scandic Narvik':'Scandic Narvik','Grand Arctic Resort':'Grand Arctic Resort Överkalix','Lapland View Lodge':'Lapland View Lodge Sweden','AC Aurora Glass Villa':'AC Aurora Glass Villa Finland','Kide Hotel':'Kide Hotel Finland','Hilton Kalastajatorppa':'Hilton Helsinki Kalastajatorppa'};
+const PLACES=[
+ [['Changi Airport','Singapore Changi Airport']],
+ [['Helsinki Airport','Helsinki Airport'],['Tromsø Airport','Tromsø Airport'],['Tromsø centre','Tromsø city centre, Norway']],
+ [['Svolvær','Svolvær, Norway']],
+ [['Reine','Reine, Lofoten, Norway'],['Henningsvær','Henningsvær, Norway']],
+ [['Narvik','Narvik, Norway']],
+ [['Narvik Station','Narvik Station, Norway']],
+ [],
+ [['Santa Claus Village','Santa Claus Village, Rovaniemi'],['Santa’s Main Post Office','Santa Claus Main Post Office, Rovaniemi']],
+ [['Ranua Wildlife Park','Ranua Wildlife Park']],
+ [['Oulu Airport','Oulu Airport'],['Helsinki Airport','Helsinki Airport'],['Helsinki centre','Helsinki city centre']],
+ [['Helsinki centre','Helsinki city centre']],
+ [['Tallinn Old Town','Tallinn Old Town, Estonia'],['Helsinki Airport','Helsinki Airport']],
+ [['Changi Airport','Singapore Changi Airport']]
+];
+const STOPS={
+ HEL:{name:'Helsinki',lat:60.17,lon:24.94,q:'Helsinki',days:[2,10,11,12],lx:16,ly:8},
+ TOS:{name:'Tromsø',lat:69.65,lon:18.96,q:'Tromsø, Norway',days:[2,3],lx:16,ly:8},
+ SVO:{name:'Svolvær',lat:68.23,lon:14.57,q:'Svolvær, Norway',days:[3,4,5],lx:-8,ly:-18,a:'end'},
+ HEN:{name:'Henningsvær',lat:68.15,lon:14.20,q:'Henningsvær, Norway',days:[4],lx:14,ly:34},
+ REI:{name:'Reine',lat:67.93,lon:13.09,q:'Reine, Lofoten, Norway',days:[4],lx:0,ly:40,a:'middle'},
+ NAR:{name:'Narvik',lat:68.44,lon:17.43,q:'Narvik, Norway',days:[5,6],lx:16,ly:8},
+ OVE:{name:'Överkalix',lat:66.33,lon:22.84,q:'Grand Arctic Resort Överkalix',days:[6,7],lx:16,ly:26},
+ LAN:{name:'Lansjärv',lat:66.65,lon:22.2,q:'Lapland View Lodge Sweden',days:[7,8],lx:-16,ly:-6,a:'end'},
+ ROV:{name:'Rovaniemi',lat:66.50,lon:25.73,q:'Santa Claus Village, Rovaniemi',days:[8,9],lx:0,ly:-22,a:'middle'},
+ RAN:{name:'Ranua',lat:65.93,lon:26.52,q:'Ranua Wildlife Park',days:[9,10],lx:-16,ly:8,a:'end'},
+ OUL:{name:'Oulu',lat:65.01,lon:25.47,q:'Oulu Airport',days:[10],lx:-16,ly:8,a:'end'}
+};
+const SLEEP=['','TOS','SVO','SVO','NAR','OVE','LAN','ROV','RAN','HEL','HEL','',''];
+const ROUTE=['TOS','SVO','HEN','REI','SVO','NAR','OVE','LAN','ROV','RAN','OUL'];
+const LEGS=[['TOS','SVO',3],['SVO','REI',4],['REI','HEN',4],['HEN','SVO',4],['SVO','NAR',5],['NAR','OVE',6],['OVE','LAN',7],['LAN','ROV',8],['ROV','RAN',9],['RAN','OUL',10]];
+DAYS.forEach((d,i)=>{
+  d.places=PLACES[i].map(p=>({label:p[0],q:p[1]}));
+  if(d.hotel){d.hq=HQ[d.hotel]||d.hotel;d.places.push({label:d.hotel,q:d.hq,hotel:true})}
+  d.sleep=SLEEP[i]?STOPS[SLEEP[i]]:null;
+});
+const PIN='<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+const NAV='<svg viewBox="0 0 24 24"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg>';
+function placesHTML(day){
+  if(!day.places.length) return '';
+  return '<div class="places">'+day.places.map(p=>'<div class="place"><span>'+(p.hotel?'<i class="ph">Hotel</i>':'')+esc(p.label)+'</span><a class="btn sm" href="'+gq(p.q)+'" target="_blank" rel="noopener">'+PIN+'Map</a><a class="btn sm ice" href="'+gd(p.q)+'" target="_blank" rel="noopener">'+NAV+'Go</a></div>').join('')+'</div>';
+}
+
+/* ---------- live data: weather (Open-Meteo) + Kp (NOAA SWPC) ---------- */
+let WX=store.get('wx',null), KP=store.get('kp',null);
+const WMO=c=>c==null?'':c===0?'Clear':c<=1?'Mostly clear':c===2?'Partly cloudy':c===3?'Overcast':c<=48?'Fog':c<=57?'Drizzle':c<=67?'Rain':c<=77?'Snow':c<=82?'Showers':c<=86?'Snow showers':'Thunderstorm';
+const ago=t=>{const m=Math.round((Date.now()-t)/6e4);return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' d ago'};
+let fetching=false;
+async function refreshData(force){
+  if(fetching||!navigator.onLine)return; fetching=true;
+  const stale=x=>!x||Date.now()-x.t>30*60e3;
+  try{
+    if(force||stale(WX)){
+      const u='https://api.open-meteo.com/v1/forecast?latitude='+DAYS.map(d=>d.lat).join(',')+'&longitude='+DAYS.map(d=>d.lon).join(',')+'&current=temperature_2m,apparent_temperature,wind_speed_10m,weather_code&hourly=cloud_cover&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&forecast_days=16&wind_speed_unit=kmh';
+      const r=await fetch(u).then(r=>{if(!r.ok)throw 0;return r.json()});
+      const arr=Array.isArray(r)?r:[r];
+      WX={t:Date.now(),list:arr.map(x=>({off:x.utc_offset_seconds,cur:x.current,daily:x.daily,hourly:{time:x.hourly.time,cc:x.hourly.cloud_cover}}))};
+      store.set('wx',WX);
+    }
+  }catch(e){}
+  try{
+    if(force||stale(KP)){
+      const r=await fetch('https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json').then(r=>{if(!r.ok)throw 0;return r.json()});
+      const rows=r.map(x=>Array.isArray(x)?{t:x[0],kp:+x[1]}:{t:x.time_tag,kp:+x.kp}).filter(x=>x.t&&!isNaN(x.kp)).map(x=>({t:Date.parse(String(x.t).replace(' ','T')+(/Z$/.test(x.t)?'':'Z')),kp:x.kp})).filter(x=>!isNaN(x.t));
+      KP={t:Date.now(),rows};store.set('kp',KP);
+    }
+  }catch(e){}
+  fetching=false; softRender();
+}
+function dayWx(i){
+  const w=WX&&WX.list&&WX.list[i];if(!w||!w.daily)return null;
+  const k=w.daily.time.indexOf(DAYS[i].date);if(k<0)return null;
+  return {max:w.daily.temperature_2m_max[k],min:w.daily.temperature_2m_min[k],code:w.daily.weather_code[k]};
+}
+function outlook(i){
+  const d=DAYS[i];const st=Date.parse(d.date+'T18:00:00Z')-d.tz*H, en=st+8*H;
+  let cloud=null,kp=null;
+  const w=WX&&WX.list&&WX.list[i];
+  if(w&&w.hourly){let sum=0,n=0;w.hourly.time.forEach((t,k)=>{const ms=Date.parse(t+':00Z')-w.off*1e3;if(ms>=st&&ms<en&&w.hourly.cc[k]!=null){sum+=w.hourly.cc[k];n++}});if(n)cloud=Math.round(sum/n)}
+  if(KP&&KP.rows){KP.rows.forEach(r=>{if(r.t+3*H>st&&r.t<en)kp=Math.max(kp??0,r.kp)})}
+  if(cloud==null&&kp==null)return null;
+  const kS=kp==null?.6:Math.min(1,(kp+.5)/3.5), cS=cloud==null?.5:1-cloud/100;
+  const s=kS*(.12+.88*cS);
+  return {cloud,kp,s,g:s>.55?'good':s>.3?'fair':'low'};
+}
+const GRADE={good:'Good',fair:'Fair',low:'Low'};
+function outlookPanel(i){
+  const d=DAYS[i],o=outlook(i);
+  let h='<div class="panel"><h3>Aurora outlook · tonight · '+esc(d.sleep?d.sleep.name:d.place)+'</h3>';
+  if(!o){h+='<p class="muted">'+(navigator.onLine?'Forecast loads when the date is within about two weeks.':'Offline. The outlook appears once you reconnect.')+'</p></div>';return h}
+  h+='<div class="ol-row"><span class="ol-grade '+o.g+'">'+GRADE[o.g]+' chance</span><span class="upd">updated '+ago(Math.min(WX?WX.t:Date.now(),KP?KP.t:Date.now()))+'</span></div><div class="meter"><i style="width:'+Math.round(o.s*100)+'%"></i></div>';
+  h+='<div class="ol-facts"><span>Kp index <b>'+(o.kp==null?'n/a':o.kp.toFixed(1))+'</b></span><span>Cloud cover <b>'+(o.cloud==null?'n/a':o.cloud+'%')+'</b></span><span>Window <b>18:00–02:00</b></span></div>';
+  h+='<p class="muted" style="font-size:13px;margin-top:10px">This far north, Kp 2 or more with clear sky is usually enough to see it. A rough guide only. Kp forecasts reach about 3 days ahead.</p></div>';
+  return h;
+}
+function wxMini(i){
+  const d=DAYS[i],w=WX&&WX.list&&WX.list[i],live=pretend==null&&w&&w.cur,f=dayWx(i);
+  const where=d.sleep?d.sleep.name:(d.cc==='SG'?'Singapore':'Helsinki');
+  if(live) return '<div class="mini"><span class="k">Weather · '+esc(where)+'</span><span class="temp">'+Math.round(w.cur.temperature_2m)+'°</span><span class="s">Feels '+Math.round(w.cur.apparent_temperature)+'° · '+WMO(w.cur.weather_code)+' · wind '+Math.round(w.cur.wind_speed_10m)+' km/h</span></div>';
+  if(f) return '<div class="mini"><span class="k">Forecast · '+esc(where)+'</span><span class="temp">'+Math.round(f.max)+'°<small class="muted" style="font-size:16px"> / '+Math.round(f.min)+'°</small></span><span class="s">'+WMO(f.code)+'</span></div>';
+  return '<div class="mini"><span class="k">Weather · '+esc(where)+'</span><span class="v">—</span><span class="s">'+(navigator.onLine?'Loading forecast…':'Offline, no saved forecast')+'</span></div>';
+}
+
+/* ---------- live location ---------- */
+let geo={on:false,pos:store.get('lastpos',null),err:'',id:null};
+const km=(a,b,c,d)=>{const r=Math.PI/180,x=Math.sin((c-a)*r/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin((d-b)*r/2)**2;return 12742*Math.asin(Math.sqrt(x))};
+function refDay(){const p=phase(now());return p.k==='on'?DAYS[p.i]:p.k==='pre'?DAYS[1]:null}
+function geoStart(){
+  if(!('geolocation' in navigator)){geo.err='This browser can’t share your location.';updateGeo();return}
+  geo.on=true;geo.err='';updateGeo();
+  try{geo.id=navigator.geolocation.watchPosition(p=>{geo.pos={lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy),t:Date.now()};geo.err='';store.set('lastpos',geo.pos);updateGeo()},
+    e=>{geo.err=e.code===1?'Location is blocked. On iPhone: Settings → Privacy & Security → Location Services → Safari Websites → While Using.':'No GPS fix yet. Step outside or wait a moment.';if(e.code===1){geo.on=false}updateGeo()},
+    {enableHighAccuracy:true,maximumAge:10000,timeout:30000})}catch(e){geo.err='Location isn’t available here.';geo.on=false;updateGeo()}
+}
+function geoStop(){try{if(geo.id!=null)navigator.geolocation.clearWatch(geo.id)}catch(e){}geo.id=null;geo.on=false;updateGeo()}
+function geoHTML(){
+  const d=refDay(),p=geo.pos;let h='';
+  h+='<div class="ol-row"><h2>Live location</h2>'+(geo.on?'<span class="live"><i></i>Live</span>':p?'<span class="upd">Last fix '+ago(p.t)+'</span>':'')+'</div>';
+  if(!p&&!geo.on){h+='<p class="muted" style="margin-top:8px">See where you are, how far tonight’s hotel is, and send your exact spot to someone.</p><div class="btns"><button type="button" class="btn primary" data-geo="start">'+NAV+'Start live location</button></div>'}
+  else{
+    if(p){
+      h+='<div class="coords">'+p.lat.toFixed(5)+', '+p.lon.toFixed(5)+' <span class="muted" style="font-size:12px">±'+p.acc+' m</span></div>';
+      if(d&&d.sleep){const k=km(p.lat,p.lon,d.sleep.lat,d.sleep.lon);h+='<div class="big-dist">'+(k<10?k.toFixed(1):Math.round(k).toLocaleString())+' km<small>to tonight’s stop, '+esc(d.sleep.name)+'</small></div>'}
+    }else h+='<p class="muted" style="margin-top:8px">Finding you…</p>';
+    h+='<div class="btns">';
+    if(p) h+='<a class="btn" href="'+gq(p.lat+','+p.lon)+'" target="_blank" rel="noopener">'+PIN+'Me in Google Maps</a>';
+    if(d&&d.hq) h+='<a class="btn ice" href="'+gd(d.hq)+'" target="_blank" rel="noopener">'+NAV+'Route to hotel</a>';
+    if(p) h+='<button type="button" class="btn" data-geo="share">Share my location</button>';
+    h+=geo.on?'<button type="button" class="btn" data-geo="stop">Stop</button>':'<button type="button" class="btn primary" data-geo="start">Go live</button>';
+    h+='</div>';
+  }
+  if(geo.err) h+='<p class="err">'+esc(geo.err)+'</p>';
+  return h;
+}
+function updateGeo(){
+  document.querySelectorAll('[data-geobox]').forEach(el=>el.innerHTML=geoHTML());
+  const me=$('#me');if(!me)return;
+  const p=geo.pos;
+  if(p&&inMap(p.lat,p.lon)){me.setAttribute('transform','translate('+mx(p.lon).toFixed(1)+' '+my(p.lat).toFixed(1)+')');me.style.display=''}else me.style.display='none';
+}
+function shareGeo(){
+  const p=geo.pos;if(!p)return;const url=gq(p.lat+','+p.lon);const text='My location right now (±'+p.acc+' m)';
+  if(navigator.share){navigator.share({title:'My location',text,url}).catch(()=>{})}
+  else{try{navigator.clipboard.writeText(text+': '+url).then(()=>toast('Location link copied'),()=>toast(url))}catch(e){toast(url)}}
+}
+
+/* ---------- route map ---------- */
+const MB={n:70.6,s:59.6,w:11.2,e:28.6},MC=Math.cos(66*Math.PI/180)*100;
+const mx=lon=>(lon-MB.w)*MC, my=lat=>(MB.n-lat)*100;
+const inMap=(lat,lon)=>lat<MB.n&&lat>MB.s&&lon>MB.w&&lon<MB.e;
+function mapSVG(todayN){
+  const W=Math.round(mx(MB.e)),Hh=Math.round(my(MB.s));
+  let g='<svg viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Map of the tour route through Norway, Sweden and Finland">';
+  for(let la=60;la<=70;la+=2){const y=my(la);g+='<line class="m-grid" x1="0" x2="'+W+'" y1="'+y+'" y2="'+y+'"/><text class="m-glbl" x="'+(W-10)+'" y="'+(y-8)+'" text-anchor="end">'+la+'°N</text>'}
+  for(let lo=14;lo<=28;lo+=4){const x=mx(lo);g+='<line class="m-grid" y1="0" y2="'+Hh+'" x1="'+x+'" x2="'+x+'"/>'}
+  const ac=my(66.5633);g+='<line class="m-arc" x1="0" x2="'+W+'" y1="'+ac+'" y2="'+ac+'"/><text class="m-arcl" x="12" y="'+(ac+28)+'">ARCTIC CIRCLE 66°34′N</text>';
+  g+='<text class="m-cty" x="'+mx(20.3)+'" y="'+my(69.9)+'">NORWAY</text><text class="m-cty" x="'+mx(15.6)+'" y="'+my(64.6)+'">SWEDEN</text><text class="m-cty" x="'+mx(21.4)+'" y="'+my(62.6)+'">FINLAND</text>';
+  const P=k=>mx(STOPS[k].lon).toFixed(1)+','+my(STOPS[k].lat).toFixed(1);
+  g+='<path class="m-fly" d="M'+P('HEL')+' Q'+mx(17)+','+my(66)+' '+P('TOS')+'"/>';
+  g+='<path class="m-fly" d="M'+P('OUL')+' Q'+mx(27.5)+','+my(62.5)+' '+P('HEL')+'"/>';
+  g+='<polyline class="m-route" points="'+ROUTE.map(P).join(' ')+'"/>';
+  Object.entries(STOPS).forEach(([k,s])=>{
+    const x=mx(s.lon),y=my(s.lat),t=s.days.includes(todayN);
+    g+='<a href="'+gq(s.q)+'" target="_blank" rel="noopener"><circle class="m-stop'+(t?' today':'')+'" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(t?11:8)+'"/><text class="m-lbl'+(t?' today':'')+'" x="'+(x+s.lx).toFixed(1)+'" y="'+(y+s.ly).toFixed(1)+'" text-anchor="'+(s.a||'start')+'">'+esc(s.name)+'</text></a>';
+  });
+  g+='<g id="me" style="display:none"><circle class="m-me-ring" r="12"/><circle class="m-me" r="11"/></g>';
+  return g+'</svg>';
+}
+function vMap(){
+  const p=phase(now());const todayN=p.k==='on'?p.i+1:-1;
+  let h='<div><div class="eyebrow">Tromsø to Oulu by road · tap any stop for Google Maps</div><h1>The route</h1></div>';
+  h+='<div class="mapwrap">'+mapSVG(todayN)+'</div>';
+  h+='<div class="legend"><span><i></i>Road &amp; rail</span><span><i class="f"></i>Flight</span><span><i class="a"></i>Arctic Circle</span></div>';
+  h+='<div class="panel" data-geobox></div>';
+  h+='<div class="panel"><h3>Each leg in Google Maps</h3><div class="places">'+LEGS.map(([a,b,dn])=>'<div class="place"><span><span class="muted" style="font:500 11px var(--mono)">D'+dn+'</span> &nbsp;'+esc(STOPS[a].name)+' → '+esc(STOPS[b].name)+'</span><a class="btn sm ice" href="'+gd(STOPS[b].q,STOPS[a].q)+'&travelmode=driving" target="_blank" rel="noopener">'+NAV+'Route</a></div>').join('')+'</div></div>';
+  h+='<div class="panel"><h3>Every stop</h3>'+DAYS.filter(d=>d.places.length).map(d=>'<div style="margin-top:10px"><div class="eyebrow" style="color:var(--mist);margin-bottom:2px">Day '+d.n+' · '+esc(d.place)+'</div>'+placesHTML(d)+'</div>').join('')+'</div>';
+  return h;
+}
+
 const CC={SG:'Singapore',NO:'Norway',SE:'Sweden',FI:'Finland'};
 const ASK={NO:'Kan du kjøre meg til dette hotellet?',SE:'Kan du köra mig till det här hotellet?',FI:'Voitteko viedä minut tähän hotelliin?',SG:'Please take me to this hotel.'};
 const TZN={1:'CET',2:'EET',8:'SGT'};
@@ -408,6 +663,12 @@ function tripBar(i){
 }
 
 /* ---------- views ---------- */
+const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const standalone=()=>navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
+function installTip(){
+  if(!isIOS||standalone()||store.get('noInstall',false))return '';
+  return '<div class="install"><div><b>Make it an app</b>Tap Share, then “Add to Home Screen”. It opens full screen and works with no signal.</div><button type="button" id="noInstall" aria-label="Dismiss">×</button></div>';
+}
 function vNow(){
   const t=now(),p=phase(t);
   const inAir=FLIGHTS.find(f=>t>=f.d&&t<f.a);
@@ -415,12 +676,15 @@ function vNow(){
   let h='';
   if(p.k==='pre'){
     const f=FLIGHTS[0];
+    h+=installTip();
     h+='<div><div class="eyebrow">Departs '+dstr(f.d,8)+' · Changi</div><h1>Aurora, here we come.</h1></div>';
     h+='<div class="panel"><h3>Wheels up · '+f.no+' to Helsinki</h3>'+cdHTML(f.d)+'<p class="cd-sub">Assemble at Changi for <b>'+f.no+'</b>, departing <b>22:05</b>, landing Helsinki <b>05:45</b> next morning.</p></div>';
     h+='<div class="panel stats"><div><b>13</b><span>days</span></div><div><b>3</b><span>countries</span></div><div><b>8</b><span>aurora hunts</span></div></div>';
     const s=sunLine(DAYS[1]);
-    h+='<div class="grid2"><div class="mini"><span class="k">First stop · Tromsø</span><span class="v">'+s.v+'</span><span class="s">'+s.s+'</span></div><div class="mini"><span class="k">Helsinki now</span><span class="v">'+hm(t,2)+'</span><span class="s">6 hours behind Singapore</span></div></div>';
-    h+='<div class="panel"><h3>Day 1 · '+dstr(DAYS[0].start,8)+'</h3>'+planList(DAYS[0])+'</div>';
+    h+='<div class="grid2"><div class="mini"><span class="k">First stop · Tromsø</span><span class="v">'+s.v+'</span><span class="s">'+s.s+'</span></div>'+wxMini(1)+'</div>';
+    h+=outlookPanel(1);
+    h+='<div class="panel"><h3>Day 1 · '+dstr(DAYS[0].start,8)+'</h3>'+planList(DAYS[0])+'<div style="margin-top:12px">'+placesHTML(DAYS[0])+'</div></div>';
+    h+='<div class="panel" data-geobox></div>';
     h+=tripBar(-1);
     return h;
   }
@@ -433,6 +697,7 @@ function vNow(){
     return h;
   }
   const day=DAYS[p.i];
+  h+=installTip();
   h+='<div><div class="eyebrow">Day '+day.n+' of 13 · '+dstr(day.start,day.tz)+' · '+esc(day.place)+'</div><h1>'+esc(day.title)+'</h1></div>';
   if(inAir){
     h+='<div class="panel"><h3><span class="status air">In the air</span> &nbsp;'+inAir.no+' to '+CITY[inAir.to]+'</h3>'+cdHTML(inAir.a)+'<div class="air" data-air="'+inAir.no+'"><span>'+inAir.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+inAir.to+'</span></div><p class="cd-sub">Lands <b>'+hm(inAir.a,inAir.aOff)+'</b> local time ('+TZN[inAir.aOff]+').</p></div>';
@@ -440,8 +705,11 @@ function vNow(){
     h+='<div class="panel"><h3>Next flight · '+next.no+' '+next.from+' → '+next.to+'</h3>'+cdHTML(next.d)+'<p class="cd-sub">Departs <b>'+hm(next.d,next.dOff)+'</b> '+TZN[next.dOff]+' from '+CITY[next.from]+'.</p></div>';
   }
   const s=sunLine(day);
-  h+='<div class="grid2">'+hotelCard(day)+auroraCard(day)+'<div class="mini"><span class="k">Daylight</span><span class="v">'+s.v+'</span><span class="s">'+s.s+'</span></div><div class="mini"><span class="k">Meals included</span><div class="chips">'+(day.meals.length?day.meals.map(m=>'<span class="chip">'+esc(m)+'</span>').join(''):'<span class="s">None</span>')+'</div></div></div>';
-  h+='<div class="panel"><h3>Today'+(day.opt?' · <span class="chip opt">has optional add-on</span>':'')+'</h3>'+planList(day)+'</div>';
+  h+='<div class="grid2">'+hotelCard(day)+auroraCard(day)+wxMini(p.i)+'<div class="mini"><span class="k">Daylight</span><span class="v">'+s.v+'</span><span class="s">'+s.s+'</span></div></div>';
+  if(day.aurora) h+=outlookPanel(p.i);
+  h+='<div class="panel"><h3>Today'+(day.opt?' · <span class="chip opt">has optional add-on</span>':'')+'</h3>'+planList(day)+(day.meals.length?'<div class="row" style="margin-top:14px"><span class="k">Meals</span><div class="chips">'+day.meals.map(m=>'<span class="chip">'+esc(m)+'</span>').join('')+'</div></div>':'')+'</div>';
+  if(day.places.length) h+='<div class="panel"><h3>Open in Google Maps</h3>'+placesHTML(day)+'</div>';
+  if(day.cc!=='SG') h+='<div class="panel" data-geobox></div>';
   const tm=DAYS[p.i+1];
   if(tm) h+='<button type="button" class="panel" data-goto="'+tm.n+'" style="text-align:left;width:100%"><h3>Tomorrow · Day '+tm.n+' · '+dstr(tm.start,tm.tz)+'</h3><h2>'+esc(tm.title)+'</h2><p class="muted" style="margin-top:6px">'+esc(tm.place)+(tm.hotel?' · '+esc(tm.hotel):'')+'</p></button>';
   h+=tripBar(p.i);
@@ -459,6 +727,9 @@ function vDays(){
     if(d.meals.length) h+='<div class="row"><span class="k">Meals</span><div class="chips">'+d.meals.map(m=>'<span class="chip">'+esc(m)+'</span>').join('')+'</div></div>';
     h+='<div class="row"><span class="k">Stay</span><span>'+(d.hotel?esc(d.hotel)+' <span class="muted">or similar</span>':'<span class="muted">'+esc(d.night)+'</span>')+'</span></div>';
     if(d.cc!=='SG'){const s=sunLine(d);h+='<div class="row"><span class="k">Sun</span><span>'+s.v+' <span class="muted">· '+s.s+'</span></span></div>'}
+    const fw=dayWx(k);if(fw)h+='<div class="row"><span class="k">Weather</span><span>'+Math.round(fw.max)+'° / '+Math.round(fw.min)+'° <span class="muted">· '+WMO(fw.code)+'</span></span></div>';
+    if(d.aurora){const o=outlook(k);if(o)h+='<div class="row"><span class="k">Outlook</span><span class="pill '+o.g+'">'+GRADE[o.g]+' aurora chance</span><span class="muted" style="font-size:13px">'+(o.cloud!=null?o.cloud+'% cloud':'')+(o.kp!=null?' · Kp '+o.kp.toFixed(1):'')+'</span></div>'}
+    if(d.places.length)h+=placesHTML(d);
     if(d.aurora){const on=!!seen[d.aurora.n];h+='<div class="aur'+(on?' seen':'')+'"><span><b>Aurora hunt #'+d.aurora.n+'</b><br><span class="muted">'+esc(d.aurora.how)+'</span></span><button type="button" data-seen="'+d.aurora.n+'">'+(on?'Seen ✓':'Saw it')+'</button></div>'}
     h+='</div></article>';
   });
@@ -511,11 +782,16 @@ function vSos(){
 }
 
 let rates=store.get('rates',{NOK:7.9,SEK:7.3,EUR:0.66});
+const PACK=['Passport (valid 6+ months)','Travel insurance details','Thermal base layers','Fleece or wool mid layer','Down jacket or windproof shell','Waterproof winter boots','Shoe ice spikes','Liner + outer gloves','Beanie and neck gaiter','Wool socks','Power bank and cables','Plug adapter (Type C/F)','Phone tripod for aurora photos','Hand and toe warmers','Lip balm and moisturiser','Card that works in EUR, NOK, SEK'];
 function vTools(){
   let h='<div><div class="eyebrow">Handy on the road</div><h1>Tools</h1></div>';
   h+='<div class="panel"><h2 style="margin-bottom:10px">Money</h2><div class="conv"><input class="field" id="amt" inputmode="decimal" value="'+esc(store.get('amt','100'))+'" aria-label="Amount"><select class="field" id="cur" aria-label="Currency">'+['EUR','NOK','SEK','SGD'].map(c=>'<option'+(c===store.get('cur','EUR')?' selected':'')+'>'+c+'</option>').join('')+'</select></div><div class="conv-out" id="convOut"></div>';
   h+='<div class="rates">'+['NOK','SEK','EUR'].map(c=>'<label for="r'+c+'">1 SGD = '+c+'<input class="field" id="r'+c+'" data-rate="'+c+'" inputmode="decimal" value="'+rates[c]+'"></label>').join('')+'</div><p class="muted" style="font-size:12.5px;margin-top:8px">Starting rates are rough guesses. Type in today’s rate from your bank app.</p></div>';
   h+='<div class="panel"><h2 style="margin-bottom:4px">Aurora log</h2><p class="muted" style="font-size:14px;margin-bottom:12px">'+seenCount()+' of 8 hunts with a sighting. Tap a hunt to log it.</p><div class="hunts">'+DAYS.filter(d=>d.aurora).map(d=>'<button type="button" class="hunt'+(seen[d.aurora.n]?' on':'')+'" data-seen="'+d.aurora.n+'"><b>#'+d.aurora.n+'</b><span>'+wall(d.start,d.tz).getUTCDate()+' '+MO[wall(d.start,d.tz).getUTCMonth()]+'</span></button>').join('')+'</div></div>';
+  const pk=store.get('pack',{});const done=PACK.filter((x,i)=>pk[i]).length;
+  h+='<div class="panel"><div class="ol-row" style="margin-bottom:8px"><h2>Packing list</h2><span class="upd">'+done+' / '+PACK.length+' packed</span></div><div class="meter" style="margin:0 0 10px"><i style="width:'+Math.round(done/PACK.length*100)+'%"></i></div><div class="pack">'+PACK.map((x,i)=>'<label for="pk'+i+'"><input type="checkbox" id="pk'+i+'" data-pack="'+i+'"'+(pk[i]?' checked':'')+'><span>'+esc(x)+'</span></label>').join('')+'</div></div>';
+  h+='<div class="panel"><h2 style="margin-bottom:10px">Aurora photos on a phone</h2><ul class="tips"><li><b>Night mode on, flash off.</b> Rest the phone on a tripod or a rail and the exposure stretches up to 30 seconds.</li><li><b>Focus</b> on a bright star or a distant light, then hold still until it finishes.</li><li><b>Dim your screen</b> and keep away from lights for 15 minutes so your eyes adapt.</li><li><b>Faint grey arcs</b> often show green on camera. Shoot them anyway.</li><li><b>Warm the battery</b> in an inside pocket between shots.</li></ul></div>';
+  h+='<div class="panel"><div class="ol-row" style="margin-bottom:6px"><h2>Live data</h2><button type="button" class="btn sm" id="refreshData">Refresh</button></div><p class="muted" style="font-size:13.5px">Weather '+(WX?'updated '+ago(WX.t):'not loaded yet')+' · aurora Kp '+(KP?'updated '+ago(KP.t):'not loaded yet')+'. Sources: Open-Meteo and NOAA Space Weather Prediction Center. Saved for offline use.</p></div>';
   h+='<div class="panel"><h2 style="margin-bottom:6px">Preview a day</h2><p class="muted" style="font-size:14px;margin-bottom:10px">See what the Now tab will show on any day of the trip.</p><select class="field" id="pretendSel" aria-label="Preview day"><option value="">Live (real time)</option><option value="pre">The day before departure</option><option value="air">Mid-flight on AY132</option>'+DAYS.map(d=>'<option value="'+d.n+'">Day '+d.n+' · '+dstr(d.start,d.tz)+' · '+esc(d.title)+'</option>').join('')+'<option value="post">After landing home</option></select></div>';
   h+='<div class="panel"><h2 style="margin-bottom:8px">Fine print from the itinerary</h2><div class="fine"><p>If the weather is poor, the tour manager may skip the aurora walk. The Northern Lights are natural and can’t be guaranteed.</p><p>Hotels and the order of days can change with glass igloo availability, domestic flight schedules or weather.</p><p>Snow activities depend on conditions. Without enough snow the snowmobile ride becomes an extra group meal, and the husky sledge becomes a husky cart or a shorter ride. No refunds for the horse, reindeer farm, Arctic train or cable car.</p><p>The group can hire a bus for a longer aurora hunt if everyone agrees at least 3 days ahead. Costs are split equally.</p><p class="muted">Tour by L.G.E Travel (Let’s Go Europe).</p></div></div>';
   return h;
@@ -529,7 +805,7 @@ function conv(){
 }
 
 /* ---------- routing + render ---------- */
-const VIEWS={now:vNow,days:vDays,flights:vFlights,sos:vSos,tools:vTools};
+const VIEWS={now:vNow,days:vDays,map:vMap,flights:vFlights,sos:vSos,tools:vTools};
 let cur='now', lastPhase='';
 function route(){const k=(location.hash||'#now').slice(1);cur=VIEWS[k]?k:'now';render(true)}
 function render(scroll){
@@ -538,6 +814,8 @@ function render(scroll){
   const el=$('#v-'+cur);
   const keep=window.scrollY;
   el.innerHTML=VIEWS[cur]();
+  if(scroll){el.classList.remove('enter');void el.offsetWidth;el.classList.add('enter')}
+  updateGeo();
   if(cur==='tools'){conv();const ps=$('#pretendSel');ps.value=store.get('pretendKey','')}
   $('#pretendBar').hidden=pretend==null;
   if(pretend!=null){const p=phase(pretend);$('#pretendTxt').textContent='Previewing '+(p.k==='pre'?'pre-trip':p.k==='post'?'after the trip':'Day '+(p.i+1))}
@@ -548,15 +826,19 @@ function render(scroll){
 }
 function jump(n,smooth){const d=$('#day-'+n);if(d)d.scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});const b=document.querySelector('[data-jump="'+n+'"]');if(b)b.scrollIntoView({inline:'center',block:'nearest'})}
 
+function softRender(){const a=document.activeElement;if(a&&a.matches&&a.matches('input,select'))return;if(!$('#sheet').hidden)return;render(false)}
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,1800)}
 let wake=null;
-function openDriver(n){const d=DAYS[n-1];$('#sheetHotel').textContent=d.hotel;$('#sheetSim').textContent='(or similar) · Day '+d.n+', '+dstr(d.start,d.tz);$('#sayLocal').textContent=ASK[d.cc];$('#sheet').hidden=false;
+function openDriver(n){const d=DAYS[n-1];$('#sheetMap').href=gq(d.hq||d.hotel);$('#sheetHotel').textContent=d.hotel;$('#sheetSim').textContent='(or similar) · Day '+d.n+', '+dstr(d.start,d.tz);$('#sayLocal').textContent=ASK[d.cc];$('#sheet').hidden=false;
   try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(w=>wake=w).catch(()=>{})}catch(e){}}
 function closeDriver(){$('#sheet').hidden=true;try{wake&&wake.release()}catch(e){}wake=null}
 
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-seen],[data-driver],[data-jump],[data-goto],[data-copy],[data-del],#addContact,#sheetClose,#pretendOff');
+  const t=e.target.closest('[data-seen],[data-driver],[data-jump],[data-goto],[data-copy],[data-del],[data-geo],#addContact,#sheetClose,#pretendOff,#noInstall,#refreshData');
   if(!t)return;
+  if(t.dataset.geo){const a=t.dataset.geo;if(a==='start')geoStart();else if(a==='stop')geoStop();else shareGeo();return}
+  if(t.id==='noInstall'){store.set('noInstall',true);render();return}
+  if(t.id==='refreshData'){toast(navigator.onLine?'Refreshing…':'You’re offline');refreshData(true);return}
   if(t.dataset.seen){toggleSeen(+t.dataset.seen)}
   else if(t.dataset.driver){openDriver(+t.dataset.driver)}
   else if(t.dataset.jump){jump(+t.dataset.jump,true)}
@@ -580,6 +862,7 @@ document.addEventListener('change',e=>{
   if(t.id==='cur'){store.set('cur',t.value);conv()}
   else if(t.id==='pretendSel'){setPretend(t.value)}
   else if(t.dataset.ci!=null&&cur==='sos'){render()}
+  else if(t.dataset.pack!=null){const pk=store.get('pack',{});pk[t.dataset.pack]=t.checked;store.set('pack',pk);t.blur();render()}
 });
 function setPretend(k){
   store.set('pretendKey',k);
@@ -630,5 +913,9 @@ size();addEventListener('resize',size);
 if(reduce)draw(4000);else requestAnimationFrame(loop);
 
 route();
+refreshData(false);
+setInterval(()=>refreshData(false),10*60e3);
+addEventListener('online',()=>refreshData(true));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshData(false);softRender()}});
 })();
 </script>
