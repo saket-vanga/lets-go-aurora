@@ -1,0 +1,634 @@
+<title>Lets Go Aurora</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one-screen app over a live aurora sky; five tabs (Now, Days, Flights, SOS, Tools) on a bottom bar, glass panels on polar-night ink. */
+:root{
+  color-scheme: dark;
+  --night:#060a16;      /* polar night sky */
+  --panel:rgba(16,24,48,.62);
+  --panel-solid:#0f1730;
+  --line:rgba(150,180,255,.14);
+  --snow:#ecf2ff;       /* main text */
+  --mist:#93a2c3;       /* secondary text */
+  --aurora:#6ff5c4;     /* green band */
+  --violet:#b69cff;     /* upper band */
+  --ice:#8fd3ff;
+  --sun:#ffc56b;
+  --sos:#ff5a5f;
+  --sos-ink:#2a0608;
+  --display:"Unbounded", "Avenir Next", system-ui, sans-serif;
+  --body:"Instrument Sans", -apple-system, "Helvetica Neue", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --tabh:64px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--night);color:var(--snow);font:16px/1.5 var(--body);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.veil{position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,transparent 0%,transparent 35%,rgba(6,10,22,.75) 70%,var(--night) 100%)}
+main{position:relative;z-index:1;max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px calc(var(--tabh) + env(safe-area-inset-bottom,0px) + 28px)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ice);outline-offset:2px}
+a{color:var(--ice)}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:6px 14px}
+.brand{font:800 13px/1 var(--display);letter-spacing:.14em;text-transform:uppercase}
+.brand span{color:var(--aurora)}
+.clocks{display:flex;gap:14px;font:500 12px/1.2 var(--mono);color:var(--mist);text-align:right}
+.clocks b{display:block;color:var(--snow);font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+
+.pretend-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--violet);color:var(--night);font-weight:600;font-size:13px;padding:8px 12px;border-radius:10px;margin-bottom:12px}
+.pretend-bar button{background:var(--night);color:var(--snow);border:0;border-radius:8px;padding:5px 10px;font-size:12px}
+
+/* type */
+.eyebrow{font:500 12px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--aurora)}
+h1{font:800 clamp(30px,8.5vw,52px)/1.02 var(--display);letter-spacing:-.02em;margin:8px 0 0;text-wrap:balance}
+h2{font:700 18px/1.2 var(--display);margin:0;text-wrap:balance}
+h3{font:600 12px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mist);margin:0 0 10px}
+p{margin:0}
+.muted{color:var(--mist)}
+small{font-size:13px}
+
+.view{display:flex;flex-direction:column;gap:18px;animation:rise .45s ease both}
+@keyframes rise{from{transform:translateY(10px);opacity:.4}to{transform:none;opacity:1}}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:340px){.grid2{grid-template-columns:1fr}}
+
+/* countdown */
+.cd{display:flex;gap:6px;align-items:flex-end;margin-top:14px;flex-wrap:wrap}
+.cd .u{display:flex;flex-direction:column;align-items:center;min-width:64px;padding:10px 6px 8px;border-radius:14px;background:rgba(111,245,196,.08);border:1px solid rgba(111,245,196,.25)}
+.cd .u b{font:700 clamp(28px,8vw,40px)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--snow)}
+.cd .u i{font:500 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--aurora);margin-top:6px;font-style:normal}
+.cd-sub{margin-top:12px;color:var(--mist)}
+.cd-sub b{color:var(--snow)}
+
+/* progress */
+.trip{display:grid;grid-template-columns:repeat(13,1fr);gap:4px}
+.trip span{height:8px;border-radius:4px;background:var(--line)}
+.trip span.done{background:linear-gradient(90deg,var(--violet),var(--aurora))}
+.trip span.today{background:var(--aurora);box-shadow:0 0 12px var(--aurora)}
+.trip-l{display:flex;justify-content:space-between;font:500 11px var(--mono);color:var(--mist);margin-top:8px;letter-spacing:.06em}
+
+/* mini cards */
+.mini{display:flex;flex-direction:column;gap:6px;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:14px;min-width:0;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.mini .k{font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
+.mini .v{font:600 17px/1.25 var(--body)}
+.mini .s{font-size:13px;color:var(--mist)}
+button.mini{cursor:pointer}
+button.mini:active{transform:scale(.98)}
+.mini.hot{border-color:rgba(111,245,196,.45)}
+.mini.seen{background:linear-gradient(160deg,rgba(111,245,196,.22),rgba(182,156,255,.18));border-color:var(--aurora)}
+.go{color:var(--ice);font-size:13px;font-weight:600}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:999px;background:rgba(255,197,107,.12);color:var(--sun);border:1px solid rgba(255,197,107,.25)}
+.chip.opt{background:rgba(182,156,255,.12);color:var(--violet);border-color:rgba(182,156,255,.3)}
+.chip.cc{background:transparent;color:var(--mist);border-color:var(--line);font-family:var(--mono);font-size:11px}
+
+.plan{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.plan li{display:grid;grid-template-columns:14px 1fr;gap:10px;align-items:start}
+.plan li::before{content:"";width:8px;height:8px;margin-top:8px;border-radius:50%;background:var(--aurora);box-shadow:0 0 8px var(--aurora)}
+.plan li.fl::before{background:var(--ice);box-shadow:0 0 8px var(--ice);border-radius:2px;transform:rotate(45deg)}
+.plan li.note::before{background:var(--mist);box-shadow:none}
+.plan li.note{color:var(--mist);font-size:14px}
+.plan b{color:var(--snow)}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
+.stats b{display:block;font:800 30px/1 var(--display);color:var(--aurora)}
+.stats span{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mist)}
+
+/* in-air */
+.air{display:flex;align-items:center;gap:10px;margin-top:12px;font:700 15px var(--mono)}
+.air .bar{flex:1;height:4px;background:var(--line);border-radius:2px;position:relative}
+.air .bar i{position:absolute;inset:0 auto 0 0;background:var(--ice);border-radius:2px}
+.air .bar em{position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;color:var(--ice)}
+
+/* days */
+.strip{position:sticky;top:env(safe-area-inset-top,0px);z-index:3;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:8px 2px;margin:0 -2px;background:linear-gradient(var(--night) 70%,transparent)}
+.strip::-webkit-scrollbar{display:none}
+.strip button{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;width:54px;padding:8px 0;border-radius:14px;border:1px solid var(--line);background:var(--panel-solid)}
+.strip button b{font:700 15px var(--mono)}
+.strip button span{font:500 10px var(--mono);color:var(--mist);text-transform:uppercase}
+.strip button.past{opacity:.55}
+.strip button.today{border-color:var(--aurora);box-shadow:0 0 14px rgba(111,245,196,.35)}
+.strip button.today span{color:var(--aurora)}
+
+.day{scroll-margin-top:90px;position:relative}
+.day.today{border-color:var(--aurora);box-shadow:0 0 0 1px rgba(111,245,196,.25),0 10px 40px -10px rgba(111,245,196,.35)}
+.day.past{opacity:.72}
+.day-h{display:flex;gap:14px;align-items:flex-start}
+.dno{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;width:56px;height:56px;border-radius:14px;background:rgba(150,180,255,.08);border:1px solid var(--line)}
+.dno b{font:800 20px/1 var(--display)}
+.dno span{font:500 10px/1 var(--mono);color:var(--mist);margin-top:4px;letter-spacing:.06em}
+.day.today .dno{background:var(--aurora);color:var(--night);border-color:var(--aurora)}
+.day.today .dno span{color:var(--night)}
+.day-body{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.row{display:flex;gap:8px;align-items:baseline;font-size:14px;flex-wrap:wrap}
+.row .k{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mist);width:62px;flex:0 0 auto}
+.aur{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:linear-gradient(90deg,rgba(111,245,196,.1),rgba(182,156,255,.1));border:1px dashed rgba(111,245,196,.35);font-size:14px}
+.aur button,.seebtn{border:1px solid var(--aurora);background:transparent;color:var(--aurora);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.aur.seen button,.seebtn.on{background:var(--aurora);color:var(--night)}
+.badge{font:700 10px/1 var(--mono);letter-spacing:.1em;padding:4px 7px;border-radius:6px;background:var(--aurora);color:var(--night);text-transform:uppercase}
+
+/* boarding passes */
+.pass{position:relative;display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;padding:18px 18px 16px;border-radius:18px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  -webkit-mask:radial-gradient(circle 11px at 0 66%,transparent 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 11px at 100% 66%,transparent 98%,#000) right/51% 100% no-repeat;
+  mask:radial-gradient(circle 11px at 0 66%,transparent 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 11px at 100% 66%,transparent 98%,#000) right/51% 100% no-repeat}
+.pass.next{border-color:var(--ice);background:linear-gradient(160deg,rgba(143,211,255,.16),var(--panel))}
+.pass.done{opacity:.55}
+.pass .top-row{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;font:600 12px var(--mono);color:var(--mist);letter-spacing:.06em}
+.pass .top-row b{color:var(--snow);font-size:14px}
+.iata{font:800 clamp(34px,10vw,48px)/1 var(--display);letter-spacing:-.02em}
+.pass .end{text-align:right}
+.pass .city{font-size:13px;color:var(--mist)}
+.pass .t{font:700 20px var(--mono);font-variant-numeric:tabular-nums}
+.pass .mid{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ice);font:500 11px var(--mono)}
+.pass .mid svg{width:26px;height:26px}
+.pass .foot{grid-column:1/-1;border-top:1px dashed var(--line);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between;gap:10px;font:500 12px var(--mono);color:var(--mist);flex-wrap:wrap}
+.pass .foot b{color:var(--snow)}
+.status{font:700 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 7px;border-radius:6px;border:1px solid var(--line)}
+.status.next{background:var(--ice);color:var(--night);border-color:var(--ice)}
+.status.air{background:var(--aurora);color:var(--night);border-color:var(--aurora)}
+
+/* SOS */
+.sos-big{display:flex;align-items:center;gap:16px;padding:18px;border-radius:20px;background:var(--sos);color:var(--sos-ink);text-decoration:none;box-shadow:0 12px 40px -12px rgba(255,90,95,.7)}
+.sos-big .n{font:800 56px/1 var(--display);letter-spacing:-.03em}
+.sos-big .l{font-weight:700;font-size:15px;line-height:1.3}
+.sos-big .l small{display:block;font-weight:500;opacity:.8}
+.nums{display:flex;flex-direction:column}
+.num{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
+.num:first-child{border-top:0}
+.num .who{flex:1;min-width:0}
+.num .who b{display:block;font-weight:600;font-size:15px}
+.num .who small{color:var(--mist)}
+.dial{font:700 16px var(--mono);color:var(--snow);text-decoration:none;padding:6px 10px;border-radius:10px;background:rgba(255,90,95,.14);border:1px solid rgba(255,90,95,.35);white-space:nowrap;user-select:all;-webkit-user-select:all}
+.copy{border:1px solid var(--line);background:transparent;color:var(--mist);border-radius:10px;padding:6px 9px;font-size:12px}
+.cty{display:flex;align-items:center;gap:8px}
+.cty .here{font:700 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;background:var(--aurora);color:var(--night);padding:4px 7px;border-radius:6px}
+.driver-btn{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:16px;border-radius:18px;border:1px solid var(--ice);background:linear-gradient(160deg,rgba(143,211,255,.18),var(--panel));text-align:left}
+.driver-btn b{display:block;font:700 16px var(--display)}
+.tips{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
+.tips b{color:var(--snow)}
+
+.contact{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;padding:6px 0}
+.contact input,.field{width:100%;min-width:0;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:15px}
+.contact .x{border:0;background:transparent;color:var(--mist);font-size:20px;width:32px;height:36px}
+.addbtn{border:1px dashed var(--line);background:transparent;border-radius:10px;padding:9px;color:var(--ice);font-weight:600;width:100%;margin-top:6px}
+
+/* tools */
+.conv{display:grid;grid-template-columns:1fr auto;gap:8px}
+.conv-out{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.conv-out div{padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.2);border:1px solid var(--line)}
+.conv-out b{display:block;font:700 20px var(--mono);font-variant-numeric:tabular-nums}
+.conv-out span{font:500 11px var(--mono);color:var(--mist);letter-spacing:.08em}
+.rates{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.rates label{font:500 11px var(--mono);color:var(--mist);display:flex;flex-direction:column;gap:4px}
+.hunts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.hunt{aspect-ratio:1;max-width:100%;border-radius:14px;border:1px solid var(--line);background:var(--panel-solid);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.hunt b{font:800 20px var(--display)}
+.hunt span{font:500 10px var(--mono);color:var(--mist)}
+.hunt.on{background:linear-gradient(160deg,var(--aurora),var(--violet));color:var(--night);border-color:transparent}
+.hunt.on span{color:var(--night)}
+.fine{font-size:13.5px;color:var(--mist);display:flex;flex-direction:column;gap:8px}
+
+/* tab bar */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;justify-content:center;padding:8px max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));background:rgba(6,10,22,.82);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border-top:1px solid var(--line)}
+.tabs-in{display:grid;grid-template-columns:repeat(5,1fr);width:100%;max-width:520px}
+.tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;color:var(--mist);text-decoration:none;font:600 10.5px var(--body);letter-spacing:.02em}
+.tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabs a.on{color:var(--aurora)}
+.tabs a.sos{color:var(--sos)}
+.tabs a.sos.on{color:var(--sos);text-shadow:0 0 10px rgba(255,90,95,.6)}
+
+/* driver sheet */
+.sheet{position:fixed;inset:0;z-index:20;background:var(--snow);color:var(--night);display:flex;flex-direction:column;justify-content:center;gap:18px;padding:calc(24px + env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px))}
+.sheet .say{font:600 22px/1.3 var(--body)}
+.sheet .en{font-size:15px;opacity:.6}
+.sheet .hotel{font:800 clamp(34px,10vw,60px)/1.05 var(--display);letter-spacing:-.02em;text-wrap:balance}
+.sheet .sim{font-size:15px;opacity:.6}
+.sheet button{align-self:flex-start;border:0;background:var(--night);color:var(--snow);padding:12px 20px;border-radius:12px;font-weight:700}
+
+.toast{position:fixed;left:50%;bottom:calc(var(--tabh) + env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);z-index:30;background:var(--snow);color:var(--night);font-weight:600;font-size:14px;padding:9px 16px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+
+@media (prefers-reduced-motion:reduce){.view{animation:none}}
+</style>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="veil" aria-hidden="true"></div>
+
+<main>
+  <header class="top">
+    <div class="brand">Lets Go <span>Aurora</span></div>
+    <div class="clocks">
+      <div><span id="c1l">Trip</span><b id="c1">--:--</b></div>
+      <div><span>Singapore</span><b id="c2">--:--</b></div>
+    </div>
+  </header>
+  <div id="pretendBar" class="pretend-bar" hidden><span id="pretendTxt"></span><button type="button" id="pretendOff">Back to live</button></div>
+
+  <section class="view" id="v-now"></section>
+  <section class="view" id="v-days" hidden></section>
+  <section class="view" id="v-flights" hidden></section>
+  <section class="view" id="v-sos" hidden></section>
+  <section class="view" id="v-tools" hidden></section>
+</main>
+
+<nav class="tabs" aria-label="Sections"><div class="tabs-in">
+  <a href="#now" data-tab="now"><svg viewBox="0 0 24 24"><path d="M2 18c3-7 7-11 10-11s7 4 10 11"/><path d="M6 18c2-4 4-6 6-6s4 2 6 6"/><path d="M12 3v1M5 5l.7.7M19 5l-.7.7"/></svg>Now</a>
+  <a href="#days" data-tab="days"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Days</a>
+  <a href="#flights" data-tab="flights"><svg viewBox="0 0 24 24"><path d="M10.5 13.5 3 11l1.5-1.5 8 1 4-4a2 2 0 0 1 3 3l-4 4 1 8L15 23l-2.5-7.5"/></svg>Flights</a>
+  <a href="#sos" data-tab="sos" class="sos"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>SOS</a>
+  <a href="#tools" data-tab="tools"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Tools</a>
+</div></nav>
+
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Hotel card for drivers">
+  <div><div class="say" id="sayLocal"></div><div class="en">Please take me to this hotel.</div></div>
+  <div><div class="hotel" id="sheetHotel"></div><div class="sim" id="sheetSim"></div></div>
+  <button type="button" id="sheetClose">Close</button>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s);
+const H=3600e3;
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const md=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+const pad=n=>String(n).padStart(2,'0');
+const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const wall=(ms,off)=>new Date(ms+off*H);
+const hm=(ms,off)=>{const d=wall(ms,off);return pad(d.getUTCHours())+':'+pad(d.getUTCMinutes())};
+const dstr=(ms,off)=>{const d=wall(ms,off);return WD[d.getUTCDay()]+' '+d.getUTCDate()+' '+MO[d.getUTCMonth()]};
+
+/* ---------- trip data (from the L.G.E itinerary) ---------- */
+const CITY={SIN:'Singapore Changi',HEL:'Helsinki',TOS:'Tromsø',OUL:'Oulu'};
+const FLIGHTS=[
+ {no:'AY132',from:'SIN',to:'HEL',dep:'2026-11-25T22:05:00+08:00',arr:'2026-11-26T05:45:00+02:00',dOff:8,aOff:2,day:1},
+ {no:'AY541',from:'HEL',to:'TOS',dep:'2026-11-26T07:10:00+02:00',arr:'2026-11-26T09:40:00+01:00',dOff:2,aOff:1,day:2},
+ {no:'AY438',from:'OUL',to:'HEL',dep:'2026-12-04T14:20:00+02:00',arr:'2026-12-04T15:20:00+02:00',dOff:2,aOff:2,day:10},
+ {no:'AY131',from:'HEL',to:'SIN',dep:'2026-12-07T00:05:00+02:00',arr:'2026-12-07T18:40:00+08:00',dOff:2,aOff:8,day:13}
+].map(f=>({...f,d:Date.parse(f.dep),a:Date.parse(f.arr)}));
+
+const WALK='Short walk with your tour manager';
+const DAYS=[
+ {date:'2026-11-25',tz:8,cc:'SG',place:'Singapore → Helsinki',title:'Wheels up from Changi',lat:1.36,lon:103.99,
+  items:['Assemble at **Changi Airport** for the overnight flight to Helsinki.'],meals:['Meals on board'],hotel:null,night:'On board AY132'},
+ {date:'2026-11-26',tz:1,cc:'NO',place:'Helsinki → Tromsø',title:'Tromsø & the King Crab Safari',lat:69.65,lon:18.96,
+  items:['Domestic flight to **Tromsø**.','Walking tour in Tromsø.','**King Crab Safari**: watch king crab freshly caught and cooked, then a Norwegian seafood feast.'],
+  meals:['Lunch: Norwegian seafood feast','Dinner'],hotel:'Quality Hotel Grand Tromsø',aurora:{n:1,how:WALK}},
+ {date:'2026-11-27',tz:1,cc:'NO',place:'Tromsø → Svolvær',title:'Snowmobiles & the fjord drive',lat:68.23,lon:14.57,
+  items:['**Snowmobile safari** through the Norwegian winter landscape (if weather permits).','Scenic drive through the fjords from Tromsø all the way to **Svolvær**.'],
+  meals:['Breakfast'],hotel:'Thon Hotel Lofoten',aurora:{n:2,how:WALK}},
+ {date:'2026-11-28',tz:1,cc:'NO',place:'Lofoten Islands',title:'Reine & Henningsvær',lat:67.93,lon:13.09,
+  items:['Deeper into Lofoten to **Reine**, its most scenic and photographed fishing village.','Visit the village of **Henningsvær**.'],
+  meals:['Breakfast'],hotel:'Thon Hotel Lofoten',aurora:{n:3,how:WALK}},
+ {date:'2026-11-29',tz:1,cc:'NO',place:'Lofoten → Narvik',title:'Sea eagles & the road to Narvik',lat:68.44,lon:17.43,
+  items:['Optional: **R.I.B. Sea Eagle Safari**, a 1.5–2 hour boat ride.','Fjords and scenic landscapes on the way to **Narvik**.'],opt:true,
+  meals:['Breakfast'],hotel:'Scandic Narvik',aurora:{n:4,how:'With your tour manager at the hotel skybar'}},
+ {date:'2026-11-30',tz:1,cc:'SE',place:'Narvik → Swedish Lapland',title:'The Arctic Circle Train',lat:66.35,lon:22.85,
+  items:['Board the **Arctic Circle Train** to a town in Sweden. The line was first built to carry iron ore from Kiruna to Narvik.','Cross the border and head into Lapland.'],
+  notes:['Train departure time depends on availability and the schedule.'],
+  meals:['Breakfast','Dinner'],hotel:'Grand Arctic Resort',aurora:{n:5,how:'On your own, around the glass cabins'}},
+ {date:'2026-12-01',tz:1,cc:'SE',place:'Swedish Lapland',title:'Husky Dog Farm',lat:66.65,lon:22.2,
+  items:['Visit a **Husky Dog Farm**: meet the dogs up close and learn about their life, habitat and what makes huskies special.'],
+  notes:['Cold-weather clothing is provided if it gets colder.'],
+  meals:['Breakfast','Dinner'],hotel:'Lapland View Lodge',aurora:{n:6,how:WALK}},
+ {date:'2026-12-02',tz:2,cc:'FI',place:'Into Finnish Lapland',title:'Horse sledge & Santa Claus Village',lat:66.5,lon:25.73,
+  items:['Ride a traditional **horse sledge** at an authentic horse farm.','**Santa Claus Village**: photo with Santa and post a postcard from the Main Post Office.','Collect your **Arctic Circle Certificate** with your name and the date.'],
+  notes:['Santa photo is your own purchase: €35–€60.'],
+  meals:['Breakfast','Chinese lunch','Dinner'],hotel:'AC Aurora Glass Villa',aurora:{n:7,how:'On your own, around the glass cabins'}},
+ {date:'2026-12-03',tz:2,cc:'FI',place:'Finnish Lapland',title:'Ranua Wildlife Park & reindeer',lat:65.93,lon:26.52,
+  items:['**Ranua Wildlife Park**, the world’s northernmost zoo: about 50 species and 200 animals.','**Reindeer farm**: learn how reindeer live and feed them by hand.'],
+  meals:['Breakfast','Lunch'],hotel:'Kide Hotel',aurora:{n:8,how:WALK}},
+ {date:'2026-12-04',tz:2,cc:'FI',place:'Oulu → Helsinki',title:'South to Helsinki',lat:60.17,lon:24.94,
+  items:['Transfer to the airport for the flight to Helsinki.','**Helsinki City Tour**.','Transfer to the hotel for the night.'],
+  meals:['Breakfast'],hotel:'Hilton Kalastajatorppa'},
+ {date:'2026-12-05',tz:2,cc:'FI',place:'Helsinki',title:'A free day in Helsinki',lat:60.17,lon:24.94,
+  items:['Free at leisure.'],meals:['Breakfast'],hotel:'Hilton Kalastajatorppa'},
+ {date:'2026-12-06',tz:2,cc:'FI',place:'Helsinki',title:'Tallinn option & check-out',lat:60.17,lon:24.94,
+  items:['Free at leisure until check-out at **12:00**.','Optional: excursion to **Tallinn**, a UNESCO World Heritage Site, with a meal.','Transfer to the airport for the flight home (departs 00:05).'],opt:true,
+  meals:['Breakfast'],hotel:null,night:'Airport, then AY131 at 00:05'},
+ {date:'2026-12-07',tz:2,cc:'SG',place:'Helsinki → Singapore',title:'Home sweet home',lat:1.36,lon:103.99,
+  items:['Fly Helsinki to Singapore.','**Home Sweet Home!**'],meals:[],hotel:null,night:'Home'}
+];
+DAYS.forEach((d,i)=>{d.n=i+1;d.start=Date.parse(d.date+'T00:00:00Z')-d.tz*H;d.flights=FLIGHTS.filter(f=>f.day===d.n)});
+const TRIP_END=FLIGHTS[3].a+3*H;
+const CC={SG:'Singapore',NO:'Norway',SE:'Sweden',FI:'Finland'};
+const ASK={NO:'Kan du kjøre meg til dette hotellet?',SE:'Kan du köra mig till det här hotellet?',FI:'Voitteko viedä minut tähän hotelliin?',SG:'Please take me to this hotel.'};
+const TZN={1:'CET',2:'EET',8:'SGT'};
+
+/* ---------- time ---------- */
+let pretend=store.get('pretend',null);
+const now=()=>pretend??Date.now();
+function phase(t){
+  if(t<DAYS[0].start) return {k:'pre',i:-1};
+  if(t>=TRIP_END) return {k:'post',i:12};
+  let i=0; DAYS.forEach((d,k)=>{if(t>=d.start)i=k}); return {k:'on',i};
+}
+const tzNow=t=>{const p=phase(t);return p.k==='on'?DAYS[p.i].tz:8};
+
+/* ---------- sun (NOAA approximation) ---------- */
+function sun(day){
+  const d=new Date(day.date+'T12:00:00Z');const N=Math.round((d-Date.UTC(d.getUTCFullYear(),0,1))/864e5)+1;
+  const g=2*Math.PI/365*(N-1), r=Math.PI/180;
+  const eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g));
+  const dec=0.006918-0.399912*Math.cos(g)+0.070257*Math.sin(g)-0.006758*Math.cos(2*g)+0.000907*Math.sin(2*g)-0.002697*Math.cos(3*g)+0.00148*Math.sin(3*g);
+  const ph=day.lat*r;
+  const ha=z=>{const c=Math.cos(z*r)/(Math.cos(ph)*Math.cos(dec))-Math.tan(ph)*Math.tan(dec);return c>1?null:c<-1?180:Math.acos(c)/r};
+  const base=Date.parse(day.date+'T00:00:00Z');
+  const at=min=>base+min*60e3;
+  const h=ha(90.833), tw=ha(96);
+  const noon=720-4*day.lon-eq;
+  const res={noon:at(noon)};
+  if(h===null){res.polar=true}else{res.rise=at(noon-4*h);res.set=at(noon+4*h);res.len=8*h}
+  if(tw!==null) res.tw=8*tw;
+  return res;
+}
+const dur=min=>{const h=Math.floor(min/60),m=Math.round(min%60);return h+'h '+pad(m)+'m'};
+function sunLine(day){
+  const s=sun(day);
+  if(s.polar) return {v:'Polar night',s:'Sun stays below the horizon'+(s.tw?' · ~'+dur(s.tw)+' of blue twilight':'')};
+  return {v:dur(s.len)+' of daylight',s:'Sunrise '+hm(s.rise,day.tz)+' · Sunset '+hm(s.set,day.tz)};
+}
+
+/* ---------- aurora log ---------- */
+let seen=store.get('seen',{});
+const seenCount=()=>Object.values(seen).filter(Boolean).length;
+function toggleSeen(n){seen[n]=!seen[n];store.set('seen',seen);if(seen[n]){boost=3;toast('Aurora logged for hunt #'+n)}render()}
+
+/* ---------- countdown ---------- */
+function cdHTML(target){return '<div class="cd" data-cd="'+target+'"></div>'}
+function cdParts(ms){ms=Math.max(0,ms);const s=Math.floor(ms/1e3);return [Math.floor(s/86400),Math.floor(s%86400/3600),Math.floor(s%3600/60),s%60]}
+function tickCD(){
+  document.querySelectorAll('[data-cd]').forEach(el=>{
+    const p=cdParts(+el.dataset.cd-now());const L=['days','hrs','min','sec'];
+    let start=p[0]?0:1;
+    el.innerHTML=p.slice(start).map((v,i)=>'<div class="u"><b>'+pad(v)+'</b><i>'+L[i+start]+'</i></div>').join('');
+  });
+  document.querySelectorAll('[data-air]').forEach(el=>{
+    const f=FLIGHTS.find(x=>x.no===el.dataset.air);const pct=Math.min(1,Math.max(0,(now()-f.d)/(f.a-f.d)))*100;
+    el.querySelector('i').style.width=pct+'%';el.querySelector('em').style.left=pct+'%';
+  });
+  const t=now(),tz=tzNow(t);
+  $('#c1').textContent=hm(t,tz);$('#c1l').textContent=tz===8?'Singapore':(TZN[tz]+' local');
+  $('#c2').textContent=hm(t,8);
+  if($('#c1l').textContent==='Singapore'){$('#c1l').textContent='Helsinki';$('#c1').textContent=hm(t,2)}
+}
+
+/* ---------- pieces ---------- */
+const PLANE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15.5v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V8.5l-8 5v2l8-2.5V18l-2 1.5V21l3.5-1 3.5 1v-1.5L13 18v-5z" transform="rotate(90 12 12)"/></svg>';
+function hotelCard(day){
+  if(!day.hotel) return '<div class="mini"><span class="k">Tonight</span><span class="v">'+esc(day.night)+'</span></div>';
+  return '<button type="button" class="mini hot" data-driver="'+day.n+'"><span class="k">Tonight</span><span class="v">'+esc(day.hotel)+'</span><span class="s">or similar</span><span class="go">Show to driver →</span></button>';
+}
+function auroraCard(day){
+  if(!day.aurora) return '<div class="mini"><span class="k">Aurora</span><span class="v">No hunt planned</span><span class="s">Look up anyway if the sky is clear.</span></div>';
+  const on=!!seen[day.aurora.n];
+  return '<button type="button" class="mini'+(on?' seen':'')+'" data-seen="'+day.aurora.n+'"><span class="k">Aurora hunt #'+day.aurora.n+' of 8</span><span class="v">'+(on?'You saw it!':'Tonight')+'</span><span class="s">'+esc(day.aurora.how)+'</span><span class="go">'+(on?'Tap to undo':'Saw it? Tap to log')+'</span></button>';
+}
+function planList(day){
+  let h='<ul class="plan">';
+  day.flights.forEach(f=>{h+='<li class="fl"><span><b>'+f.no+'</b> '+f.from+' '+hm(f.d,f.dOff)+' → '+f.to+' '+hm(f.a,f.aOff)+(f.a-f.d>0&&wall(f.a,f.aOff).getUTCDate()!==wall(f.d,f.dOff).getUTCDate()?' <span class="muted">(+1)</span>':'')+'</span></li>'});
+  day.items.forEach(s=>h+='<li><span>'+md(s)+'</span></li>');
+  (day.notes||[]).forEach(s=>h+='<li class="note"><span>'+md(s)+'</span></li>');
+  return h+'</ul>';
+}
+function tripBar(i){
+  return '<div><div class="trip">'+DAYS.map((d,k)=>'<span class="'+(k<i?'done':k===i?'today':'')+'"></span>').join('')+'</div><div class="trip-l"><span>25 NOV</span><span>'+(i>=0?'DAY '+(i+1)+' / 13':'13 DAYS')+'</span><span>07 DEC</span></div></div>';
+}
+
+/* ---------- views ---------- */
+function vNow(){
+  const t=now(),p=phase(t);
+  const inAir=FLIGHTS.find(f=>t>=f.d&&t<f.a);
+  const next=FLIGHTS.find(f=>f.d>t);
+  let h='';
+  if(p.k==='pre'){
+    const f=FLIGHTS[0];
+    h+='<div><div class="eyebrow">Departs '+dstr(f.d,8)+' · Changi</div><h1>Aurora, here we come.</h1></div>';
+    h+='<div class="panel"><h3>Wheels up · '+f.no+' to Helsinki</h3>'+cdHTML(f.d)+'<p class="cd-sub">Assemble at Changi for <b>'+f.no+'</b>, departing <b>22:05</b>, landing Helsinki <b>05:45</b> next morning.</p></div>';
+    h+='<div class="panel stats"><div><b>13</b><span>days</span></div><div><b>3</b><span>countries</span></div><div><b>8</b><span>aurora hunts</span></div></div>';
+    const s=sunLine(DAYS[1]);
+    h+='<div class="grid2"><div class="mini"><span class="k">First stop · Tromsø</span><span class="v">'+s.v+'</span><span class="s">'+s.s+'</span></div><div class="mini"><span class="k">Helsinki now</span><span class="v">'+hm(t,2)+'</span><span class="s">6 hours behind Singapore</span></div></div>';
+    h+='<div class="panel"><h3>Day 1 · '+dstr(DAYS[0].start,8)+'</h3>'+planList(DAYS[0])+'</div>';
+    h+=tripBar(-1);
+    return h;
+  }
+  if(p.k==='post'){
+    const c=seenCount();
+    h+='<div><div class="eyebrow">Trip complete · Landed '+dstr(FLIGHTS[3].a,8)+'</div><h1>Home sweet home.</h1></div>';
+    h+='<div class="panel stats"><div><b>13</b><span>days</span></div><div><b>'+c+'</b><span>auroras seen</span></div><div><b>4</b><span>flights</span></div></div>';
+    h+='<p class="muted">Flip through the Days tab to relive it, or log any aurora you forgot in Tools.</p>';
+    h+=tripBar(13);
+    return h;
+  }
+  const day=DAYS[p.i];
+  h+='<div><div class="eyebrow">Day '+day.n+' of 13 · '+dstr(day.start,day.tz)+' · '+esc(day.place)+'</div><h1>'+esc(day.title)+'</h1></div>';
+  if(inAir){
+    h+='<div class="panel"><h3><span class="status air">In the air</span> &nbsp;'+inAir.no+' to '+CITY[inAir.to]+'</h3>'+cdHTML(inAir.a)+'<div class="air" data-air="'+inAir.no+'"><span>'+inAir.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+inAir.to+'</span></div><p class="cd-sub">Lands <b>'+hm(inAir.a,inAir.aOff)+'</b> local time ('+TZN[inAir.aOff]+').</p></div>';
+  }else if(next&&next.d-t<36*H){
+    h+='<div class="panel"><h3>Next flight · '+next.no+' '+next.from+' → '+next.to+'</h3>'+cdHTML(next.d)+'<p class="cd-sub">Departs <b>'+hm(next.d,next.dOff)+'</b> '+TZN[next.dOff]+' from '+CITY[next.from]+'.</p></div>';
+  }
+  const s=sunLine(day);
+  h+='<div class="grid2">'+hotelCard(day)+auroraCard(day)+'<div class="mini"><span class="k">Daylight</span><span class="v">'+s.v+'</span><span class="s">'+s.s+'</span></div><div class="mini"><span class="k">Meals included</span><div class="chips">'+(day.meals.length?day.meals.map(m=>'<span class="chip">'+esc(m)+'</span>').join(''):'<span class="s">None</span>')+'</div></div></div>';
+  h+='<div class="panel"><h3>Today'+(day.opt?' · <span class="chip opt">has optional add-on</span>':'')+'</h3>'+planList(day)+'</div>';
+  const tm=DAYS[p.i+1];
+  if(tm) h+='<button type="button" class="panel" data-goto="'+tm.n+'" style="text-align:left;width:100%"><h3>Tomorrow · Day '+tm.n+' · '+dstr(tm.start,tm.tz)+'</h3><h2>'+esc(tm.title)+'</h2><p class="muted" style="margin-top:6px">'+esc(tm.place)+(tm.hotel?' · '+esc(tm.hotel):'')+'</p></button>';
+  h+=tripBar(p.i);
+  return h;
+}
+
+function vDays(){
+  const p=phase(now());const ti=p.k==='pre'?-1:p.k==='post'?13:p.i;
+  let h='<div><div class="eyebrow">25 Nov – 07 Dec · Finland · Norway · Sweden</div><h1>13 days</h1></div>';
+  h+='<div class="strip" id="strip">'+DAYS.map((d,k)=>{const w=wall(d.start,d.tz);return '<button type="button" data-jump="'+d.n+'" class="'+(k<ti?'past':k===ti?'today':'')+'"><span>D'+d.n+'</span><b>'+w.getUTCDate()+'</b><span>'+MO[w.getUTCMonth()]+'</span></button>'}).join('')+'</div>';
+  DAYS.forEach((d,k)=>{
+    const cls=k<ti?'past':k===ti?'today':'';
+    h+='<article class="panel day '+cls+'" id="day-'+d.n+'"><div class="day-h"><div class="dno"><b>'+d.n+'</b><span>'+WD[wall(d.start,d.tz).getUTCDay()].toUpperCase()+'</span></div><div style="min-width:0;flex:1"><div class="eyebrow" style="color:var(--mist)">'+dstr(d.start,d.tz)+' · '+esc(d.place)+'</div><h2 style="margin-top:4px">'+esc(d.title)+'</h2><div class="chips" style="margin-top:8px"><span class="chip cc">'+CC[d.cc]+'</span>'+(k===ti?'<span class="badge">Today</span>':'')+(d.opt?'<span class="chip opt">Optional add-on</span>':'')+'</div></div></div>';
+    h+='<div class="day-body">'+planList(d);
+    if(d.meals.length) h+='<div class="row"><span class="k">Meals</span><div class="chips">'+d.meals.map(m=>'<span class="chip">'+esc(m)+'</span>').join('')+'</div></div>';
+    h+='<div class="row"><span class="k">Stay</span><span>'+(d.hotel?esc(d.hotel)+' <span class="muted">or similar</span>':'<span class="muted">'+esc(d.night)+'</span>')+'</span></div>';
+    if(d.cc!=='SG'){const s=sunLine(d);h+='<div class="row"><span class="k">Sun</span><span>'+s.v+' <span class="muted">· '+s.s+'</span></span></div>'}
+    if(d.aurora){const on=!!seen[d.aurora.n];h+='<div class="aur'+(on?' seen':'')+'"><span><b>Aurora hunt #'+d.aurora.n+'</b><br><span class="muted">'+esc(d.aurora.how)+'</span></span><button type="button" data-seen="'+d.aurora.n+'">'+(on?'Seen ✓':'Saw it')+'</button></div>'}
+    h+='</div></article>';
+  });
+  return h;
+}
+
+function vFlights(){
+  const t=now();const next=FLIGHTS.find(f=>f.a>t);
+  let h='<div><div class="eyebrow">Finnair · 4 flights · times are local</div><h1>Flights</h1></div>';
+  FLIGHTS.forEach(f=>{
+    const air=t>=f.d&&t<f.a, done=t>=f.a, isNext=f===next&&!air;
+    const st=air?'<span class="status air">In the air</span>':done?'<span class="status">Landed</span>':isNext?'<span class="status next">Next</span>':'<span class="status">Day '+f.day+'</span>';
+    const plus=wall(f.a,f.aOff).getUTCDate()!==wall(f.d,f.dOff).getUTCDate();
+    h+='<div class="pass '+(done?'done':isNext||air?'next':'')+'"><div class="top-row"><b>'+f.no+'</b><span>'+dstr(f.d,f.dOff).toUpperCase()+'</span>'+st+'</div>';
+    h+='<div><div class="iata">'+f.from+'</div><div class="city">'+CITY[f.from]+'</div><div class="t">'+hm(f.d,f.dOff)+'</div></div>';
+    h+='<div class="mid">'+PLANE+'<span>'+dur((f.a-f.d)/6e4)+'</span></div>';
+    h+='<div class="end"><div class="iata">'+f.to+'</div><div class="city">'+CITY[f.to]+'</div><div class="t">'+hm(f.a,f.aOff)+(plus?'<sup style="font-size:12px;color:var(--ice)"> +1</sup>':'')+'</div></div>';
+    h+='<div class="foot"><span>DEP <b>'+TZN[f.dOff]+'</b> · ARR <b>'+TZN[f.aOff]+'</b></span><span>In SG time: <b>'+hm(f.d,8)+' → '+hm(f.a,8)+'</b></span></div>';
+    if(isNext||air) h+='<div style="grid-column:1/-1">'+cdHTML(air?f.a:f.d)+'<p class="cd-sub">'+(air?'until landing':'until departure')+'</p></div>';
+    h+='</div>';
+  });
+  h+='<p class="muted" style="font-size:13.5px">Gates and any schedule changes show in the Finnair app. Domestic flight times can change; your tour manager will confirm.</p>';
+  return h;
+}
+
+const NUMS={
+ NO:[['Police','112'],['Ambulance','113'],['Fire','110'],['Out-of-hours doctor (legevakt)','116 117'],['Police, non-emergency','02800'],['Poison information','22 59 13 00']],
+ SE:[['Police · Ambulance · Fire','112'],['Police, non-emergency','114 14'],['Healthcare advice','1177'],['Poison information, non-urgent','010-456 67 00']],
+ FI:[['Police · Ambulance · Fire','112'],['Medical helpline','116 117'],['Poison information','0800 147 111']]
+};
+function numRow(label,num,sub){
+  const tel=num.replace(/[^\d+]/g,'');
+  return '<div class="num"><div class="who"><b>'+esc(label)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</div><a class="dial" href="tel:'+tel+'">'+esc(num)+'</a><button type="button" class="copy" data-copy="'+esc(num)+'">Copy</button></div>';
+}
+let contacts=store.get('contacts',[{name:'Tour manager',num:''},{name:'Travel insurance 24h line',num:''},{name:'Family at home',num:''}]);
+function vSos(){
+  const p=phase(now());const day=p.k==='on'?DAYS[p.i]:null;const cc=day?day.cc:'NO';
+  let h='<div><div class="eyebrow">Works on every stop of this trip</div><h1>Emergency</h1></div>';
+  h+='<a class="sos-big" href="tel:112"><span class="n">112</span><span class="l">Police, ambulance, fire<small>Norway · Sweden · Finland. Free, works with any SIM.</small></span></a>';
+  h+='<p class="muted" style="font-size:13.5px">iPhone: hold the side button and a volume button to call emergency services. If tapping a number doesn’t dial, copy it.</p>';
+  const tn=day&&day.hotel?day:DAYS.find(d=>d.hotel&&d.start>=(day?day.start:0))||DAYS.filter(d=>d.hotel).pop();
+  h+='<button type="button" class="driver-btn" data-driver="'+tn.n+'"><span><span class="eyebrow" style="color:var(--ice)">Lost? Show a driver</span><b>'+esc(tn.hotel)+'</b><small class="muted">Day '+tn.n+' hotel · full-screen card</small></span><span class="go">Open →</span></button>';
+  ['NO','SE','FI'].sort((a,b)=>(b===cc)-(a===cc)).forEach(c=>{
+    h+='<div class="panel"><div class="cty" style="margin-bottom:6px"><h2>'+CC[c]+'</h2>'+(c===cc&&day?'<span class="here">You’re here</span>':'')+'</div><div class="nums">'+NUMS[c].map(n=>numRow(n[0],n[1])).join('')+'</div></div>';
+  });
+  h+='<div class="panel"><h2 style="margin-bottom:6px">Singapore help abroad</h2><div class="nums">'+numRow('MFA Duty Office (24 hr)','+65 6379 8800','Lost passport, arrests, serious trouble')+numRow('MFA Duty Office, alternate','+65 6379 8855')+'</div><p class="muted" style="font-size:13.5px;margin-top:8px">Lost passport: tell your tour manager, make a police report, then call the Duty Office for the nearest Singapore mission.</p></div>';
+  h+='<div class="panel"><h2 style="margin-bottom:8px">My contacts</h2><div id="contacts">'+contacts.map((c,i)=>'<div class="contact"><input id="cn'+i+'" data-ci="'+i+'" data-f="name" value="'+esc(c.name)+'" placeholder="Name" aria-label="Contact name"><input id="cp'+i+'" data-ci="'+i+'" data-f="num" value="'+esc(c.num)+'" placeholder="+65 …" inputmode="tel" aria-label="Phone number"><button type="button" class="x" data-del="'+i+'" aria-label="Remove contact">×</button></div>'+(c.num?'<div style="padding:0 0 8px"><a class="dial" href="tel:'+esc(c.num.replace(/[^\d+]/g,''))+'">Call '+esc(c.name||c.num)+'</a></div>':'')).join('')+'</div><button type="button" class="addbtn" id="addContact">+ Add contact</button><p class="muted" style="font-size:12.5px;margin-top:8px">Saved on this phone only.</p></div>';
+  h+='<div class="panel"><h2 style="margin-bottom:10px">Cold safety</h2><ul class="tips"><li><b>Frostbite:</b> white or grey, waxy, numb skin. Warm it slowly against body heat. Don’t rub it.</li><li><b>Layers:</b> base, fleece, windproof shell. Cover ears, fingers and face during aurora walks.</li><li><b>Phone battery</b> drains fast below zero. Keep it in an inside pocket and bring a power bank.</li><li><b>Ice:</b> walk flat-footed and slow on pavements. Shoe spikes help a lot.</li></ul></div>';
+  return h;
+}
+
+let rates=store.get('rates',{NOK:7.9,SEK:7.3,EUR:0.66});
+function vTools(){
+  let h='<div><div class="eyebrow">Handy on the road</div><h1>Tools</h1></div>';
+  h+='<div class="panel"><h2 style="margin-bottom:10px">Money</h2><div class="conv"><input class="field" id="amt" inputmode="decimal" value="'+esc(store.get('amt','100'))+'" aria-label="Amount"><select class="field" id="cur" aria-label="Currency">'+['EUR','NOK','SEK','SGD'].map(c=>'<option'+(c===store.get('cur','EUR')?' selected':'')+'>'+c+'</option>').join('')+'</select></div><div class="conv-out" id="convOut"></div>';
+  h+='<div class="rates">'+['NOK','SEK','EUR'].map(c=>'<label for="r'+c+'">1 SGD = '+c+'<input class="field" id="r'+c+'" data-rate="'+c+'" inputmode="decimal" value="'+rates[c]+'"></label>').join('')+'</div><p class="muted" style="font-size:12.5px;margin-top:8px">Starting rates are rough guesses. Type in today’s rate from your bank app.</p></div>';
+  h+='<div class="panel"><h2 style="margin-bottom:4px">Aurora log</h2><p class="muted" style="font-size:14px;margin-bottom:12px">'+seenCount()+' of 8 hunts with a sighting. Tap a hunt to log it.</p><div class="hunts">'+DAYS.filter(d=>d.aurora).map(d=>'<button type="button" class="hunt'+(seen[d.aurora.n]?' on':'')+'" data-seen="'+d.aurora.n+'"><b>#'+d.aurora.n+'</b><span>'+wall(d.start,d.tz).getUTCDate()+' '+MO[wall(d.start,d.tz).getUTCMonth()]+'</span></button>').join('')+'</div></div>';
+  h+='<div class="panel"><h2 style="margin-bottom:6px">Preview a day</h2><p class="muted" style="font-size:14px;margin-bottom:10px">See what the Now tab will show on any day of the trip.</p><select class="field" id="pretendSel" aria-label="Preview day"><option value="">Live (real time)</option><option value="pre">The day before departure</option><option value="air">Mid-flight on AY132</option>'+DAYS.map(d=>'<option value="'+d.n+'">Day '+d.n+' · '+dstr(d.start,d.tz)+' · '+esc(d.title)+'</option>').join('')+'<option value="post">After landing home</option></select></div>';
+  h+='<div class="panel"><h2 style="margin-bottom:8px">Fine print from the itinerary</h2><div class="fine"><p>If the weather is poor, the tour manager may skip the aurora walk. The Northern Lights are natural and can’t be guaranteed.</p><p>Hotels and the order of days can change with glass igloo availability, domestic flight schedules or weather.</p><p>Snow activities depend on conditions. Without enough snow the snowmobile ride becomes an extra group meal, and the husky sledge becomes a husky cart or a shorter ride. No refunds for the horse, reindeer farm, Arctic train or cable car.</p><p>The group can hire a bus for a longer aurora hunt if everyone agrees at least 3 days ahead. Costs are split equally.</p><p class="muted">Tour by L.G.E Travel (Let’s Go Europe).</p></div></div>';
+  return h;
+}
+
+function conv(){
+  const out=$('#convOut');if(!out)return;
+  const a=parseFloat(($('#amt').value||'0').replace(',','.'))||0, c=$('#cur').value;
+  const toSgd=c==='SGD'?a:a/rates[c];
+  out.innerHTML=['SGD','EUR','NOK','SEK'].filter(x=>x!==c).map(x=>{const v=x==='SGD'?toSgd:toSgd*rates[x];return '<div><span>'+x+'</span><b>'+v.toLocaleString(undefined,{maximumFractionDigits:v<100?2:0})+'</b></div>'}).join('');
+}
+
+/* ---------- routing + render ---------- */
+const VIEWS={now:vNow,days:vDays,flights:vFlights,sos:vSos,tools:vTools};
+let cur='now', lastPhase='';
+function route(){const k=(location.hash||'#now').slice(1);cur=VIEWS[k]?k:'now';render(true)}
+function render(scroll){
+  Object.keys(VIEWS).forEach(k=>{const el=$('#v-'+k);el.hidden=k!==cur});
+  document.querySelectorAll('.tabs a').forEach(a=>a.classList.toggle('on',a.dataset.tab===cur));
+  const el=$('#v-'+cur);
+  const keep=window.scrollY;
+  el.innerHTML=VIEWS[cur]();
+  if(cur==='tools'){conv();const ps=$('#pretendSel');ps.value=store.get('pretendKey','')}
+  $('#pretendBar').hidden=pretend==null;
+  if(pretend!=null){const p=phase(pretend);$('#pretendTxt').textContent='Previewing '+(p.k==='pre'?'pre-trip':p.k==='post'?'after the trip':'Day '+(p.i+1))}
+  tickCD();
+  if(scroll){window.scrollTo(0,0);if(cur==='days'){const p=phase(now());if(p.k==='on')setTimeout(()=>jump(p.i+1,false),60)}}
+  else window.scrollTo(0,keep);
+  lastPhase=JSON.stringify(phase(now()))+(FLIGHTS.find(f=>now()>=f.d&&now()<f.a)||{}).no;
+}
+function jump(n,smooth){const d=$('#day-'+n);if(d)d.scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});const b=document.querySelector('[data-jump="'+n+'"]');if(b)b.scrollIntoView({inline:'center',block:'nearest'})}
+
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,1800)}
+let wake=null;
+function openDriver(n){const d=DAYS[n-1];$('#sheetHotel').textContent=d.hotel;$('#sheetSim').textContent='(or similar) · Day '+d.n+', '+dstr(d.start,d.tz);$('#sayLocal').textContent=ASK[d.cc];$('#sheet').hidden=false;
+  try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(w=>wake=w).catch(()=>{})}catch(e){}}
+function closeDriver(){$('#sheet').hidden=true;try{wake&&wake.release()}catch(e){}wake=null}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-seen],[data-driver],[data-jump],[data-goto],[data-copy],[data-del],#addContact,#sheetClose,#pretendOff');
+  if(!t)return;
+  if(t.dataset.seen){toggleSeen(+t.dataset.seen)}
+  else if(t.dataset.driver){openDriver(+t.dataset.driver)}
+  else if(t.dataset.jump){jump(+t.dataset.jump,true)}
+  else if(t.dataset.goto){location.hash='#days';setTimeout(()=>jump(+t.dataset.goto,false),80)}
+  else if(t.dataset.copy){const v=t.dataset.copy;const ok=()=>toast('Copied '+v);
+    try{navigator.clipboard.writeText(v).then(ok,()=>{selectText(t.previousElementSibling)})}catch(err){selectText(t.previousElementSibling)}}
+  else if(t.dataset.del){contacts.splice(+t.dataset.del,1);store.set('contacts',contacts);render()}
+  else if(t.id==='addContact'){contacts.push({name:'',num:''});store.set('contacts',contacts);render();const i=contacts.length-1;const el=$('#cn'+i);el&&el.focus()}
+  else if(t.id==='sheetClose'){closeDriver()}
+  else if(t.id==='pretendOff'){setPretend('')}
+});
+function selectText(el){if(!el)return;const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Number selected, tap Copy')}
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset.ci!=null){contacts[+t.dataset.ci][t.dataset.f]=t.value;store.set('contacts',contacts)}
+  else if(t.id==='amt'){store.set('amt',t.value);conv()}
+  else if(t.dataset.rate){const v=parseFloat(t.value.replace(',','.'));if(v>0){rates[t.dataset.rate]=v;store.set('rates',rates);conv()}}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='cur'){store.set('cur',t.value);conv()}
+  else if(t.id==='pretendSel'){setPretend(t.value)}
+  else if(t.dataset.ci!=null&&cur==='sos'){render()}
+});
+function setPretend(k){
+  store.set('pretendKey',k);
+  if(!k)pretend=null;
+  else if(k==='pre')pretend=DAYS[0].start-4*H;
+  else if(k==='air')pretend=FLIGHTS[0].d+6*H;
+  else if(k==='post')pretend=TRIP_END+12*H;
+  else{const d=DAYS[+k-1];pretend=d.start+(k==='13'?0.5:12)*H}
+  store.set('pretend',pretend);render();
+  if(pretend!=null)toast('Preview on. Check the Now tab.');
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#sheet').hidden)closeDriver()});
+window.addEventListener('hashchange',route);
+
+setInterval(()=>{tickCD();const ph=JSON.stringify(phase(now()))+(FLIGHTS.find(f=>now()>=f.d&&now()<f.a)||{}).no;if(ph!==lastPhase&&!document.activeElement.matches('input,select'))render()},1000);
+
+/* ---------- aurora sky ---------- */
+const cv=$('#sky'),cx=cv.getContext('2d');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let W=0,Hh=0,dpr=Math.min(window.devicePixelRatio||1,1.5),boost=1;
+const sp=document.createElement('canvas');sp.width=2;sp.height=256;
+(()=>{const g=sp.getContext('2d'),gr=g.createLinearGradient(0,0,0,256);
+ gr.addColorStop(0,'rgba(182,120,255,0)');gr.addColorStop(.35,'rgba(170,125,255,.32)');gr.addColorStop(.72,'rgba(90,255,190,.85)');gr.addColorStop(.86,'rgba(150,255,225,.7)');gr.addColorStop(1,'rgba(90,255,190,0)');
+ g.fillStyle=gr;g.fillRect(0,0,2,256)})();
+const stars=Array.from({length:140},()=>({x:Math.random(),y:Math.random()*.75,r:Math.random()*1.1+.25,p:Math.random()*6.3}));
+const bands=[{y:.24,a:.07,h:.30,k:2.2,s:.00011,ph:0,al:.5},{y:.31,a:.05,h:.2,k:3.4,s:-.00008,ph:2.1,al:.38},{y:.17,a:.06,h:.24,k:1.3,s:.00006,ph:4.2,al:.28}];
+function size(){W=innerWidth;Hh=innerHeight;cv.width=W*dpr;cv.height=Hh*dpr;cx.setTransform(dpr,0,0,dpr,0,0)}
+function draw(t){
+  cx.globalCompositeOperation='source-over';cx.clearRect(0,0,W,Hh);
+  for(const s of stars){cx.globalAlpha=.35+.35*Math.sin(t*.0012+s.p);cx.fillStyle='#dfe8ff';cx.beginPath();cx.arc(s.x*W,s.y*Hh,s.r,0,6.283);cx.fill()}
+  cx.globalCompositeOperation='lighter';
+  const step=5;
+  for(const b of bands){
+    for(let x=-step;x<W+step;x+=step){
+      const u=x/W;
+      const y=Hh*(b.y+b.a*Math.sin(u*b.k*Math.PI+t*b.s*6+b.ph)+.018*Math.sin(x*.025+t*.0011+b.ph));
+      const h=Hh*b.h*(.55+.45*Math.sin(x*.009+t*.0006+b.ph));
+      const w=Math.sin(x*.0055-t*.00045+b.ph*1.7);
+      cx.globalAlpha=Math.min(1,b.al*boost*(.25+.75*w*w));
+      cx.drawImage(sp,x,y-h,step+1,h);
+    }
+  }
+  cx.globalAlpha=1;
+}
+let last=0;
+function loop(t){if(!document.hidden&&t-last>33){last=t;boost+=(1-boost)*.02;draw(t)}requestAnimationFrame(loop)}
+size();addEventListener('resize',size);
+if(reduce)draw(4000);else requestAnimationFrame(loop);
+
+route();
+})();
+</script>
