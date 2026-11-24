@@ -17,6 +17,8 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
 /* Layout: one-screen app over a live aurora sky; five tabs (Now, Days, Flights, SOS, Tools) on a bottom bar, glass panels on polar-night ink. */
@@ -301,7 +303,49 @@ button.mini:active{transform:scale(.98)}
 .install button{margin-left:auto;border:0;background:transparent;color:var(--mist);font-size:22px;line-height:1;padding:0 4px}
 .sheet a.btn{align-self:flex-start;background:var(--night);color:var(--snow);border:0}
 .sheet .row2{display:flex;gap:10px;flex-wrap:wrap}
-@media (prefers-reduced-motion:reduce){.view.enter{animation:none}.live i,.m-me-ring{animation:none}}
+/* live map */
+.mapcard{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);height:min(66vh,600px);min-height:360px;background:var(--panel-solid);box-shadow:0 20px 60px -20px rgba(111,245,196,.25)}
+#lmap{position:absolute;inset:0;background:#0a0f1f}
+.leaflet-container{font-family:var(--body);background:#0a0f1f}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--panel-solid);color:var(--snow);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.leaflet-popup-content-wrapper{border-radius:16px}
+.leaflet-popup-content{margin:12px 14px;font-size:14px;line-height:1.45;min-width:190px}
+.leaflet-popup-content b{font:700 16px var(--display);display:block;margin-bottom:2px}
+.leaflet-container a.leaflet-popup-close-button{color:var(--mist)}
+.leaflet-control-attribution{background:rgba(6,10,22,.72)!important;color:var(--mist)!important;font-size:9px!important}
+.leaflet-control-attribution a{color:var(--mist)!important}
+.pin{width:34px;height:34px;border-radius:50%;background:var(--night);border:2.5px solid var(--aurora);display:flex;align-items:center;justify-content:center;font:700 11px var(--mono);color:var(--aurora);box-shadow:0 0 16px rgba(111,245,196,.55)}
+.pin.today{background:var(--aurora);color:var(--night);animation:pulse 1.6s infinite}
+.pin.minor{width:22px;height:22px;font-size:0;border-width:2px;margin:6px}
+.leaflet-tooltip.stop-tt{background:transparent;border:0;box-shadow:none;color:var(--snow);font:600 13px var(--body);text-shadow:0 1px 4px #000,0 0 10px #000;padding:0 2px}
+.leaflet-tooltip.stop-tt::before{display:none}
+.zlow .stop-tt.minor-tt{display:none}
+.zvlow .stop-tt{display:none}
+.arc-lbl{color:var(--violet);font:700 10px var(--mono);letter-spacing:.14em;white-space:nowrap;text-shadow:0 1px 4px #000}
+.plane-ic{color:var(--ice)}
+.plane-ic div{width:40px;height:40px;filter:drop-shadow(0 0 10px rgba(143,211,255,.95))}
+.plane-ic svg{width:40px;height:40px}
+.me-dot{width:18px;height:18px;border-radius:50%;background:var(--ice);border:3px solid var(--snow);animation:pulse2 1.8s infinite}
+@keyframes pulse2{0%{box-shadow:0 0 0 0 rgba(143,211,255,.7)}70%{box-shadow:0 0 0 14px rgba(143,211,255,0)}100%{box-shadow:0 0 0 0 rgba(143,211,255,0)}}
+.mapfab{position:absolute;right:max(10px,env(safe-area-inset-right,0px));top:10px;z-index:500;display:flex;flex-direction:column;gap:8px}
+.fab{width:50px;height:50px;border-radius:15px;border:1px solid var(--line);background:rgba(6,10,22,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--snow);display:flex;align-items:center;justify-content:center;flex-direction:column;font:600 9.5px var(--body);gap:3px}
+.fab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.fab.on{color:var(--night);background:var(--aurora);border-color:var(--aurora)}
+.fab:disabled{opacity:.4}
+.mapchip{position:absolute;left:10px;bottom:24px;z-index:500;max-width:calc(100% - 20px);display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;background:rgba(6,10,22,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);font:500 11.5px var(--mono);color:var(--mist)}
+.mapchip b{color:var(--aurora)}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.tog{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);color:var(--mist);border-radius:999px;padding:8px 14px;font-weight:600;font-size:13.5px}
+.tog i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.tog.on{color:var(--snow);border-color:rgba(111,245,196,.5)}
+.tog.on i{background:var(--aurora);box-shadow:0 0 8px var(--aurora)}
+/* plane tracker */
+.trk{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.plstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.plstats div{padding:10px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid var(--line)}
+.plstats b{display:block;font:700 18px var(--mono);font-variant-numeric:tabular-nums}
+.plstats span{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mist)}
+@media (prefers-reduced-motion:reduce){.view.enter{animation:none}.pin.today,.me-dot{animation:none}.live i,.m-me-ring{animation:none}}
 </style>
 
 <canvas id="sky" aria-hidden="true"></canvas>
@@ -550,6 +594,7 @@ function geoHTML(){
 }
 function updateGeo(){
   document.querySelectorAll('[data-geobox]').forEach(el=>el.innerHTML=geoHTML());
+  drawMe();
   const me=$('#me');if(!me)return;
   const p=geo.pos;
   if(p&&inMap(p.lat,p.lon)){me.setAttribute('transform','translate('+mx(p.lon).toFixed(1)+' '+my(p.lat).toFixed(1)+')');me.style.display=''}else me.style.display='none';
@@ -582,16 +627,175 @@ function mapSVG(todayN){
   g+='<g id="me" style="display:none"><circle class="m-me-ring" r="12"/><circle class="m-me" r="11"/></g>';
   return g+'</svg>';
 }
-function vMap(){
-  const p=phase(now());const todayN=p.k==='on'?p.i+1:-1;
-  let h='<div><div class="eyebrow">Tromsø to Oulu by road · tap any stop for Google Maps</div><h1>The route</h1></div>';
-  h+='<div class="mapwrap">'+mapSVG(todayN)+'</div>';
-  h+='<div class="legend"><span><i></i>Road &amp; rail</span><span><i class="f"></i>Flight</span><span><i class="a"></i>Arctic Circle</span></div>';
+/* ---------- plane position (estimated from the schedule) ---------- */
+const AP={SIN:[1.3644,103.9915],HEL:[60.3172,24.9633],TOS:[69.6833,18.9189],OUL:[64.9301,25.3546]};
+function gcPoints(a,b,n){
+  const r=Math.PI/180,la1=a[0]*r,lo1=a[1]*r,la2=b[0]*r,lo2=b[1]*r;
+  const d=2*Math.asin(Math.sqrt(Math.sin((la2-la1)/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin((lo2-lo1)/2)**2));
+  const out=[];for(let i=0;i<=n;i++){const f=i/n,A=Math.sin((1-f)*d)/Math.sin(d),B=Math.sin(f*d)/Math.sin(d);
+    const x=A*Math.cos(la1)*Math.cos(lo1)+B*Math.cos(la2)*Math.cos(lo2),y=A*Math.cos(la1)*Math.sin(lo1)+B*Math.cos(la2)*Math.sin(lo2),z=A*Math.sin(la1)+B*Math.sin(la2);
+    out.push([Math.atan2(z,Math.hypot(x,y))/r,Math.atan2(y,x)/r])}
+  return out;
+}
+function bearing(p,q){const r=Math.PI/180,y=Math.sin((q[1]-p[1])*r)*Math.cos(q[0]*r),x=Math.cos(p[0]*r)*Math.sin(q[0]*r)-Math.sin(p[0]*r)*Math.cos(q[0]*r)*Math.cos((q[1]-p[1])*r);return (Math.atan2(y,x)/r+360)%360}
+FLIGHTS.forEach(f=>{f.path=gcPoints(AP[f.from],AP[f.to],300);f.km=km(AP[f.from][0],AP[f.from][1],AP[f.to][0],AP[f.to][1])});
+const FR24=f=>'https://www.flightradar24.com/data/flights/'+f.no.toLowerCase();
+const FAW=f=>'https://www.flightaware.com/live/flight/FIN'+f.no.slice(2);
+function planeState(f,t){
+  if(t<f.d)return {k:'before'};if(t>=f.a)return {k:'landed'};
+  const fr=(t-f.d)/(f.a-f.d),x=fr*300,i=Math.min(299,Math.floor(x)),u=x-i,A=f.path[i],B=f.path[i+1];
+  const pos=[A[0]+(B[0]-A[0])*u,A[1]+(B[1]-A[1])*u];
+  return {k:'air',fr,pos,hdg:bearing(A,B),flown:f.km*fr,left:f.km*(1-fr),trail:f.path.slice(0,i+1).concat([pos])};
+}
+const airborne=t=>FLIGHTS.find(f=>t>=f.d&&t<f.a);
+function plStatsHTML(f){
+  const s=planeState(f,now());if(s.k!=='air')return '';
+  const left=f.a-now(),hh=Math.floor(left/H),mm=Math.floor(left%H/6e4);
+  return '<div><b>'+Math.round(s.flown).toLocaleString()+'</b><span>km flown</span></div><div><b>'+Math.round(s.left).toLocaleString()+'</b><span>km to go</span></div><div><b>'+hh+'h '+pad(mm)+'</b><span>to landing</span></div>';
+}
+function trackBtns(f,air){
+  return '<a class="btn sm" href="'+FR24(f)+'" target="_blank" rel="noopener">Flightradar24</a><a class="btn sm" href="'+FAW(f)+'" target="_blank" rel="noopener">FlightAware</a>'+(air?'<button type="button" class="btn sm primary" data-plane="1">'+PIN+'Watch on map</button>':'');
+}
+
+/* ---------- aurora oval (NOAA OVATION) ---------- */
+let OV=store.get('ov',null), ovDrawn=0;
+async function refreshOval(force){
+  if(!navigator.onLine)return;
+  if(!force&&OV&&Date.now()-OV.t<15*60e3)return;
+  try{
+    const r=await fetch('https://services.swpc.noaa.gov/json/ovation_aurora_latest.json').then(r=>{if(!r.ok)throw 0;return r.json()});
+    const cells=[];
+    for(const c of r.coordinates){const la=c[1],v=c[2];if(la<48||la>84||v<4)continue;const lo=c[0]>180?c[0]-360:c[0];if(lo<-45||lo>75)continue;cells.push([la,lo,v])}
+    OV={t:Date.now(),obs:r['Observation Time'],fc:r['Forecast Time'],cells};store.set('ov',OV);
+  }catch(e){}
+  drawOval();
+}
+
+/* ---------- live map (Leaflet) ---------- */
+let LM=null, follow=null;
+let layerOn=Object.assign({sat:false,aur:true,fl:true},store.get('layers',{}));
+const todayN=()=>{const p=phase(now());return p.k==='on'?p.i+1:-1};
+function stopLabel(k){const n=DAYS.filter(d=>SLEEP[d.n-1]===k).map(d=>d.n);const a=n.length?n:STOPS[k].days.slice(0,1);return a.length>1?a[0]+'–'+a[a.length-1]:String(a[0])}
+function stopPopup(k){
+  const s=STOPS[k];const nights=DAYS.filter(d=>SLEEP[d.n-1]===k);
+  let h='<b>'+esc(s.name)+'</b><span class="muted">'+(nights.length?'Night'+(nights.length>1?'s':'')+' of day '+nights.map(d=>d.n).join(' & '):'Visit on day '+s.days[0])+'</span>';
+  const hotels=[...new Set(nights.map(d=>d.hotel).filter(Boolean))];
+  if(hotels.length)h+='<div style="margin-top:6px"><i class="ph">Hotel</i>'+esc(hotels.join(', '))+'</div>';
+  const q=hotels.length?HQ[hotels[0]]||hotels[0]:s.q;
+  return h+'<div class="btns" style="margin-top:10px"><a class="btn sm" href="'+gq(q)+'" target="_blank" rel="noopener">'+PIN+'Map</a><a class="btn sm ice" href="'+gd(q)+'" target="_blank" rel="noopener">'+NAV+'Go</a></div>';
+}
+function initMap(){
+  if(!window.L||LM)return !!LM;
+  const map=L.map('lmap',{zoomControl:false,worldCopyJump:true,attributionControl:true,maxZoom:16});
+  const dark=L.layerGroup([L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:16,attribution:'Basemap © Esri, HERE, Garmin, OpenStreetMap'}),L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',{maxZoom:16,opacity:.8})]);
+  const sat=L.layerGroup([L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18,attribution:'Imagery © Esri, Maxar, Earthstar Geographics'}),L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:18,opacity:.9})]);
+  const canvas=L.canvas({padding:.3});
+  LM={map,dark,sat,canvas,aur:L.layerGroup(),route:L.layerGroup().addTo(map),stops:L.layerGroup().addTo(map),fl:L.layerGroup(),plane:L.layerGroup().addTo(map),me:L.layerGroup().addTo(map)};
+  (layerOn.sat?sat:dark).addTo(map);
+  if(layerOn.aur)LM.aur.addTo(map);
+  if(layerOn.fl)LM.fl.addTo(map);
+  // Arctic Circle
+  L.polyline([[66.5633,-179],[66.5633,179]],{color:'#b69cff',weight:2,dashArray:'8 8',opacity:.85,interactive:false}).addTo(LM.route);
+  L.marker([66.5633,11.6],{interactive:false,icon:L.divIcon({className:'arc-lbl',html:'ARCTIC CIRCLE 66°34′N',iconSize:[170,14],iconAnchor:[0,16]})}).addTo(LM.route);
+  // road + rail route with glow
+  const pts=ROUTE.map(k=>[STOPS[k].lat,STOPS[k].lon]);
+  L.polyline(pts,{color:'#6ff5c4',weight:14,opacity:.16,interactive:false}).addTo(LM.route);
+  L.polyline(pts,{color:'#6ff5c4',weight:3.5,opacity:.95,interactive:false}).addTo(LM.route);
+  // flight arcs
+  FLIGHTS.forEach(f=>L.polyline(f.path,{color:'#8fd3ff',weight:2,dashArray:'2 9',opacity:.85}).bindTooltip(f.no+' '+f.from+' → '+f.to,{sticky:true}).addTo(LM.fl));
+  const zc=()=>{const c=map.getContainer(),z=map.getZoom();c.classList.toggle('zlow',z<7);c.classList.toggle('zvlow',z<4)};
+  map.on('zoomend',zc);
+  map.on('dragstart',()=>{follow=null;syncFabs()});
+  fitRoute(false);
+  zc();
+  return true;
+}
+const TTD={SVO:'left',LAN:'left',OUL:'left',RAN:'right',ROV:'top',OVE:'bottom',REI:'left',HEN:'bottom'};
+const TTO={right:[16,0],left:[-16,0],top:[0,-16],bottom:[0,16]};
+function drawStops(){
+  if(!LM)return;LM.stops.clearLayers();const tn=todayN();
+  Object.keys(STOPS).forEach(k=>{
+    const s=STOPS[k],minor=!DAYS.some(d=>SLEEP[d.n-1]===k),today=tn>0&&(SLEEP[tn-1]===k||(minor&&s.days.includes(tn)));
+    const icon=L.divIcon({className:'',html:'<div class="pin'+(today?' today':'')+(minor?' minor':'')+'">'+stopLabel(k)+'</div>',iconSize:minor?[34,34]:[34,34],iconAnchor:[17,17]});
+    L.marker([s.lat,s.lon],{icon,zIndexOffset:today?500:0}).bindPopup(stopPopup(k)).bindTooltip(esc(s.name),{permanent:true,direction:TTD[k]||'right',offset:TTO[TTD[k]||'right'],className:'stop-tt'+(minor?' minor-tt':'')}).addTo(LM.stops);
+  });
+}
+function drawOval(){
+  if(!LM||!OV||OV.t===ovDrawn)return;ovDrawn=OV.t;LM.aur.clearLayers();
+  OV.cells.forEach(([la,lo,v])=>L.rectangle([[la-.5,lo-.5],[la+.5,lo+.5]],{renderer:LM.canvas,stroke:false,fillColor:v>=35?'#d4ffe9':v>=15?'#6ff5c4':'#2fa785',fillOpacity:Math.min(.55,.05+v/80),interactive:false}).addTo(LM.aur));
+  const c=$('#ovChip');if(c)c.innerHTML=ovChip();
+}
+function ovChip(){
+  if(!OV)return navigator.onLine?'Loading aurora oval…':'Offline · aurora oval unavailable';
+  const fc=Date.parse(OV.fc);return '<b>●</b> Aurora right now · NOAA forecast for '+(isNaN(fc)?'now':hm(fc,tzNow(Date.now()))+' '+(TZN[tzNow(Date.now())]||''));
+}
+function drawPlane(){
+  if(!LM)return;LM.plane.clearLayers();
+  const f=airborne(now());if(!f)return;const s=planeState(f,now());
+  L.polyline(s.trail,{color:'#8fd3ff',weight:3.5,opacity:.95,interactive:false}).addTo(LM.plane);
+  L.marker(s.pos,{zIndexOffset:2000,icon:L.divIcon({className:'plane-ic',html:'<div style="transform:rotate('+s.hdg.toFixed(0)+'deg)">'+PLANE_N+'</div>',iconSize:[40,40],iconAnchor:[20,20]})})
+   .bindPopup('<b>'+f.no+' · '+f.from+' → '+f.to+'</b><span class="muted">Estimated from the schedule</span><div style="margin-top:6px">'+Math.round(s.left).toLocaleString()+' km to go · lands '+hm(f.a,f.aOff)+' '+TZN[f.aOff]+'</div><div class="btns" style="margin-top:10px"><a class="btn sm" href="'+FR24(f)+'" target="_blank" rel="noopener">Flightradar24</a></div>').addTo(LM.plane);
+  if(follow==='plane')LM.map.panTo(s.pos,{animate:true});
+}
+function drawMe(){
+  if(!LM)return;LM.me.clearLayers();const p=geo.pos;if(!p)return;
+  L.circle([p.lat,p.lon],{radius:p.acc,color:'#8fd3ff',weight:1,fillOpacity:.12,interactive:false}).addTo(LM.me);
+  L.marker([p.lat,p.lon],{zIndexOffset:1500,icon:L.divIcon({className:'',html:'<div class="me-dot"></div>',iconSize:[18,18],iconAnchor:[9,9]})}).bindPopup('<b>You</b><span class="muted">±'+p.acc+' m · '+ago(p.t)+'</span><div class="btns" style="margin-top:10px"><a class="btn sm" href="'+gq(p.lat+','+p.lon)+'" target="_blank" rel="noopener">'+PIN+'Google Maps</a></div>').addTo(LM.me);
+  if(follow==='me')LM.map.panTo([p.lat,p.lon],{animate:true});
+}
+function fitRoute(anim){if(!LM)return;LM.map.fitBounds(L.latLngBounds(Object.entries(STOPS).filter(([k])=>k!=='HEL').map(([k,s])=>[s.lat,s.lon])),{paddingTopLeft:[40,40],paddingBottomRight:[70,50],animate:anim!==false})}
+function focusPlane(){
+  const f=airborne(now());
+  if(!f){toast('No flight in the air right now');return}
+  if(!LM)return;follow='plane';const s=planeState(f,now());LM.map.setView(s.pos,f.km>3000?4:6,{animate:true});drawPlane();syncFabs();
+}
+function focusMe(){
+  if(!geo.on)geoStart();follow='me';
+  if(geo.pos&&LM)LM.map.setView([geo.pos.lat,geo.pos.lon],12,{animate:true});else toast('Finding you…');
+  syncFabs();
+}
+function syncFabs(){
+  document.querySelectorAll('[data-fab]').forEach(b=>{const k=b.dataset.fab;b.classList.toggle('on',follow===k);if(k==='plane')b.disabled=!airborne(now())});
+  document.querySelectorAll('[data-tog]').forEach(b=>b.classList.toggle('on',!!layerOn[b.dataset.tog]));
+}
+function toggleLayer(k){
+  layerOn[k]=!layerOn[k];store.set('layers',layerOn);
+  if(LM){
+    if(k==='sat'){LM.map.removeLayer(layerOn.sat?LM.dark:LM.sat);(layerOn.sat?LM.sat:LM.dark).addTo(LM.map)}
+    if(k==='aur'){layerOn.aur?LM.aur.addTo(LM.map):LM.map.removeLayer(LM.aur)}
+    if(k==='fl'){layerOn.fl?LM.fl.addTo(LM.map):LM.map.removeLayer(LM.fl)}
+  }
+  syncFabs();
+}
+const FAB_ROUTE='<svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8 17c6 0 2-9 8-10"/></svg>';
+const FAB_ME='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>';
+const FAB_PLANE='<svg viewBox="0 0 24 24"><path d="M10.5 13.5 3 11l1.5-1.5 8 1 4-4a2 2 0 0 1 3 3l-4 4 1 8L15 23l-2.5-7.5"/></svg>';
+function mapSkeleton(){
+  return '<div><div class="eyebrow">Live map · Norway · Sweden · Finland</div><h1>The route</h1></div>'
+   +'<div class="mapcard"><div id="lmap"></div><div class="mapfab"><button type="button" class="fab" data-fab="route" aria-label="Show whole route">'+FAB_ROUTE+'Route</button><button type="button" class="fab" data-fab="me" aria-label="Follow my location">'+FAB_ME+'Me</button><button type="button" class="fab" data-fab="plane" aria-label="Follow the plane">'+FAB_PLANE+'Plane</button></div><div class="mapchip" id="ovChip"></div></div>'
+   +'<div class="seg"><button type="button" class="tog" data-tog="aur"><i></i>Aurora now</button><button type="button" class="tog" data-tog="fl"><i></i>Flight paths</button><button type="button" class="tog" data-tog="sat"><i></i>Satellite</button></div>'
+   +'<div id="mapExtra" style="display:flex;flex-direction:column;gap:18px"></div>';
+}
+function mapExtra(){
+  let h='';
+  const f=airborne(now());
+  if(f)h+='<div class="panel"><h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="status air">In the air</span>'+f.no+' '+f.from+' → '+f.to+'</h3><div class="air" data-air="'+f.no+'"><span>'+f.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+f.to+'</span></div><div class="plstats" data-plstat="'+f.no+'">'+plStatsHTML(f)+'</div><div class="trk">'+trackBtns(f,true)+'</div></div>';
   h+='<div class="panel" data-geobox></div>';
   h+='<div class="panel"><h3>Each leg in Google Maps</h3><div class="places">'+LEGS.map(([a,b,dn])=>'<div class="place"><span><span class="muted" style="font:500 11px var(--mono)">D'+dn+'</span> &nbsp;'+esc(STOPS[a].name)+' → '+esc(STOPS[b].name)+'</span><a class="btn sm ice" href="'+gd(STOPS[b].q,STOPS[a].q)+'&travelmode=driving" target="_blank" rel="noopener">'+NAV+'Route</a></div>').join('')+'</div></div>';
   h+='<div class="panel"><h3>Every stop</h3>'+DAYS.filter(d=>d.places.length).map(d=>'<div style="margin-top:10px"><div class="eyebrow" style="color:var(--mist);margin-bottom:2px">Day '+d.n+' · '+esc(d.place)+'</div>'+placesHTML(d)+'</div>').join('')+'</div>';
   return h;
 }
+function renderMap(el){
+  if(!el.dataset.built){
+    el.innerHTML=mapSkeleton();el.dataset.built='1';
+    if(!initMap()){$('.mapcard').outerHTML='<div class="mapwrap">'+mapSVG(todayN())+'</div><p class="muted" style="font-size:13px">The live map needs a connection the first time. Showing the offline route map.</p>';$('.seg').hidden=true}
+  }
+  $('#mapExtra').innerHTML=mapExtra();
+  const c=$('#ovChip');if(c)c.innerHTML=ovChip();
+  if(LM){setTimeout(()=>LM.map.invalidateSize(),60);drawStops();drawOval();drawPlane();drawMe()}
+  syncFabs();refreshOval(false);
+}
+function vMap(){return ''}
 
 const CC={SG:'Singapore',NO:'Norway',SE:'Sweden',FI:'Finland'};
 const ASK={NO:'Kan du kjøre meg til dette hotellet?',SE:'Kan du köra mig till det här hotellet?',FI:'Voitteko viedä minut tähän hotelliin?',SG:'Please take me to this hotel.'};
@@ -631,11 +835,6 @@ function sunLine(day){
   return {v:dur(s.len)+' of daylight',s:'Sunrise '+hm(s.rise,day.tz)+' · Sunset '+hm(s.set,day.tz)};
 }
 
-/* ---------- aurora log ---------- */
-let seen=store.get('seen',{});
-const seenCount=()=>Object.values(seen).filter(Boolean).length;
-function toggleSeen(n){seen[n]=!seen[n];store.set('seen',seen);if(seen[n]){boost=3;toast('Aurora logged for hunt #'+n)}render()}
-
 /* ---------- countdown ---------- */
 function cdHTML(target){return '<div class="cd" data-cd="'+target+'"></div>'}
 function cdParts(ms){ms=Math.max(0,ms);const s=Math.floor(ms/1e3);return [Math.floor(s/86400),Math.floor(s%86400/3600),Math.floor(s%3600/60),s%60]}
@@ -649,6 +848,7 @@ function tickCD(){
     const f=FLIGHTS.find(x=>x.no===el.dataset.air);const pct=Math.min(1,Math.max(0,(now()-f.d)/(f.a-f.d)))*100;
     el.querySelector('i').style.width=pct+'%';el.querySelector('em').style.left=pct+'%';
   });
+  document.querySelectorAll('[data-plstat]').forEach(el=>{const f=FLIGHTS.find(x=>x.no===el.dataset.plstat);el.innerHTML=plStatsHTML(f)});
   const t=now(),tz=tzNow(t);
   $('#c1').textContent=hm(t,tz);$('#c1l').textContent=tz===8?'Singapore':(TZN[tz]+' local');
   $('#c2').textContent=hm(t,8);
@@ -656,6 +856,7 @@ function tickCD(){
 }
 
 /* ---------- pieces ---------- */
+const PLANE_N='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15.5v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V8.5l-8 5v2l8-2.5V18l-2 1.5V21l3.5-1 3.5 1v-1.5L13 18v-5z"/></svg>';
 const PLANE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15.5v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V8.5l-8 5v2l8-2.5V18l-2 1.5V21l3.5-1 3.5 1v-1.5L13 18v-5z" transform="rotate(90 12 12)"/></svg>';
 function hotelCard(day){
   if(!day.hotel) return '<div class="mini"><span class="k">Tonight</span><span class="v">'+esc(day.night)+'</span></div>';
@@ -663,8 +864,8 @@ function hotelCard(day){
 }
 function auroraCard(day){
   if(!day.aurora) return '<div class="mini"><span class="k">Aurora</span><span class="v">No hunt planned</span><span class="s">Look up anyway if the sky is clear.</span></div>';
-  const on=!!seen[day.aurora.n];
-  return '<button type="button" class="mini'+(on?' seen':'')+'" data-seen="'+day.aurora.n+'"><span class="k">Aurora hunt #'+day.aurora.n+' of 8</span><span class="v">'+(on?'You saw it!':'Tonight')+'</span><span class="s">'+esc(day.aurora.how)+'</span><span class="go">'+(on?'Tap to undo':'Saw it? Tap to log')+'</span></button>';
+  const o=outlook(day.n-1);
+  return '<div class="mini hot"><span class="k">Aurora hunt #'+day.aurora.n+' of 8</span><span class="v">Tonight'+(o?' · <span class="ol-grade '+o.g+'" style="font-size:17px">'+GRADE[o.g]+'</span>':'')+'</span><span class="s">'+esc(day.aurora.how)+'</span></div>';
 }
 function planList(day){
   let h='<ul class="plan">';
@@ -693,7 +894,7 @@ function vNow(){
     const f=FLIGHTS[0];
     h+=installTip();
     h+='<div><div class="eyebrow">Departs '+dstr(f.d,8)+' · Changi</div><h1>Aurora, here we come.</h1></div>';
-    h+='<div class="panel"><h3>Wheels up · '+f.no+' to Helsinki</h3>'+cdHTML(f.d)+'<p class="cd-sub">Assemble at Changi for <b>'+f.no+'</b>, departing <b>22:05</b>, landing Helsinki <b>05:45</b> next morning.</p></div>';
+    h+='<div class="panel"><h3>Wheels up · '+f.no+' to Helsinki</h3>'+cdHTML(f.d)+'<p class="cd-sub">Assemble at Changi for <b>'+f.no+'</b>, departing <b>22:05</b>, landing Helsinki <b>05:45</b> next morning.</p><div class="trk">'+trackBtns(f,false)+'</div></div>';
     h+='<div class="panel stats"><div><b>13</b><span>days</span></div><div><b>3</b><span>countries</span></div><div><b>8</b><span>aurora hunts</span></div></div>';
     const s=sunLine(DAYS[1]);
     h+='<div class="grid2"><div class="mini"><span class="k">First stop · Tromsø</span><span class="v">'+s.v+'</span><span class="s">'+s.s+'</span></div>'+wxMini(1)+'</div>';
@@ -704,10 +905,9 @@ function vNow(){
     return h;
   }
   if(p.k==='post'){
-    const c=seenCount();
     h+='<div><div class="eyebrow">Trip complete · Landed '+dstr(FLIGHTS[3].a,8)+'</div><h1>Home sweet home.</h1></div>';
-    h+='<div class="panel stats"><div><b>13</b><span>days</span></div><div><b>'+c+'</b><span>auroras seen</span></div><div><b>4</b><span>flights</span></div></div>';
-    h+='<p class="muted">Flip through the Days tab to relive it, or log any aurora you forgot in Tools.</p>';
+    h+='<div class="panel stats"><div><b>13</b><span>days</span></div><div><b>8</b><span>aurora hunts</span></div><div><b>4</b><span>flights</span></div></div>';
+    h+='<p class="muted">Flip through the Days tab to relive it.</p>';
     h+=tripBar(13);
     return h;
   }
@@ -715,9 +915,9 @@ function vNow(){
   h+=installTip();
   h+='<div><div class="eyebrow">Day '+day.n+' of 13 · '+dstr(day.start,day.tz)+' · '+esc(day.place)+'</div><h1>'+esc(day.title)+'</h1></div>';
   if(inAir){
-    h+='<div class="panel"><h3><span class="status air">In the air</span> &nbsp;'+inAir.no+' to '+CITY[inAir.to]+'</h3>'+cdHTML(inAir.a)+'<div class="air" data-air="'+inAir.no+'"><span>'+inAir.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+inAir.to+'</span></div><p class="cd-sub">Lands <b>'+hm(inAir.a,inAir.aOff)+'</b> local time ('+TZN[inAir.aOff]+').</p></div>';
+    h+='<div class="panel"><h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="status air">In the air</span>'+inAir.no+' to '+CITY[inAir.to]+'</h3>'+cdHTML(inAir.a)+'<div class="air" data-air="'+inAir.no+'"><span>'+inAir.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+inAir.to+'</span></div><p class="cd-sub">Lands <b>'+hm(inAir.a,inAir.aOff)+'</b> local time ('+TZN[inAir.aOff]+').</p><div class="plstats" data-plstat="'+inAir.no+'">'+plStatsHTML(inAir)+'</div><div class="trk">'+trackBtns(inAir,true)+'</div></div>';
   }else if(next&&next.d-t<36*H){
-    h+='<div class="panel"><h3>Next flight · '+next.no+' '+next.from+' → '+next.to+'</h3>'+cdHTML(next.d)+'<p class="cd-sub">Departs <b>'+hm(next.d,next.dOff)+'</b> '+TZN[next.dOff]+' from '+CITY[next.from]+'.</p></div>';
+    h+='<div class="panel"><h3>Next flight · '+next.no+' '+next.from+' → '+next.to+'</h3>'+cdHTML(next.d)+'<p class="cd-sub">Departs <b>'+hm(next.d,next.dOff)+'</b> '+TZN[next.dOff]+' from '+CITY[next.from]+'.</p><div class="trk">'+trackBtns(next,false)+'</div></div>';
   }
   const s=sunLine(day);
   h+='<div class="grid2">'+hotelCard(day)+auroraCard(day)+wxMini(p.i)+'<div class="mini"><span class="k">Daylight</span><span class="v">'+s.v+'</span><span class="s">'+s.s+'</span></div></div>';
@@ -745,7 +945,7 @@ function vDays(){
     const fw=dayWx(k);if(fw)h+='<div class="row"><span class="k">Weather</span><span>'+Math.round(fw.max)+'° / '+Math.round(fw.min)+'° <span class="muted">· '+WMO(fw.code)+'</span></span></div>';
     if(d.aurora){const o=outlook(k);if(o)h+='<div class="row"><span class="k">Outlook</span><span class="pill '+o.g+'">'+GRADE[o.g]+' aurora chance</span><span class="muted" style="font-size:13px">'+(o.cloud!=null?o.cloud+'% cloud':'')+(o.kp!=null?' · Kp '+o.kp.toFixed(1):'')+'</span></div>'}
     if(d.places.length)h+=placesHTML(d);
-    if(d.aurora){const on=!!seen[d.aurora.n];h+='<div class="aur'+(on?' seen':'')+'"><span><b>Aurora hunt #'+d.aurora.n+'</b><br><span class="muted">'+esc(d.aurora.how)+'</span></span><button type="button" data-seen="'+d.aurora.n+'">'+(on?'Seen ✓':'Saw it')+'</button></div>'}
+    if(d.aurora){h+='<div class="aur"><span><b>Aurora hunt #'+d.aurora.n+' of 8</b><br><span class="muted">'+esc(d.aurora.how)+'</span></span></div>'}
     h+='</div></article>';
   });
   return h;
@@ -754,6 +954,8 @@ function vDays(){
 function vFlights(){
   const t=now();const next=FLIGHTS.find(f=>f.a>t);
   let h='<div><div class="eyebrow">Finnair · 4 flights · times are local</div><h1>Flights</h1></div>';
+  const fa=airborne(t);
+  if(fa)h+='<div class="panel" style="border-color:var(--aurora)"><h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="status air">Live</span>'+fa.no+' to '+CITY[fa.to]+'</h3><div class="air" data-air="'+fa.no+'"><span>'+fa.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+fa.to+'</span></div><div class="plstats" data-plstat="'+fa.no+'">'+plStatsHTML(fa)+'</div><div class="trk">'+trackBtns(fa,true)+'</div><p class="muted" style="font-size:12.5px;margin-top:10px">Position on the map is estimated from the schedule. Flightradar24 shows the exact radar position.</p></div>';
   FLIGHTS.forEach(f=>{
     const air=t>=f.d&&t<f.a, done=t>=f.a, isNext=f===next&&!air;
     const st=air?'<span class="status air">In the air</span>':done?'<span class="status">Landed</span>':isNext?'<span class="status next">Next</span>':'<span class="status">Day '+f.day+'</span>';
@@ -762,7 +964,8 @@ function vFlights(){
     h+='<div><div class="iata">'+f.from+'</div><div class="city">'+CITY[f.from]+'</div><div class="t">'+hm(f.d,f.dOff)+'</div></div>';
     h+='<div class="mid">'+PLANE+'<span>'+dur((f.a-f.d)/6e4)+'</span></div>';
     h+='<div class="end"><div class="iata">'+f.to+'</div><div class="city">'+CITY[f.to]+'</div><div class="t">'+hm(f.a,f.aOff)+(plus?'<sup style="font-size:12px;color:var(--ice)"> +1</sup>':'')+'</div></div>';
-    h+='<div class="foot"><span>DEP <b>'+TZN[f.dOff]+'</b> · ARR <b>'+TZN[f.aOff]+'</b></span><span>In SG time: <b>'+hm(f.d,8)+' → '+hm(f.a,8)+'</b></span></div>';
+    h+='<div class="foot"><span>DEP <b>'+TZN[f.dOff]+'</b> · ARR <b>'+TZN[f.aOff]+'</b></span><span>In SG time: <b>'+hm(f.d,8)+' → '+hm(f.a,8)+'</b></span><span>'+Math.round(f.km).toLocaleString()+' km</span></div>';
+    if(!done)h+='<div class="trk">'+trackBtns(f,air)+'</div>';
     if(isNext||air) h+='<div style="grid-column:1/-1">'+cdHTML(air?f.a:f.d)+'<p class="cd-sub">'+(air?'until landing':'until departure')+'</p></div>';
     h+='</div>';
   });
@@ -797,14 +1000,10 @@ function vSos(){
 }
 
 let rates=store.get('rates',{NOK:7.9,SEK:7.3,EUR:0.66});
-const PACK=['Passport (valid 6+ months)','Travel insurance details','Thermal base layers','Fleece or wool mid layer','Down jacket or windproof shell','Waterproof winter boots','Shoe ice spikes','Liner + outer gloves','Beanie and neck gaiter','Wool socks','Power bank and cables','Plug adapter (Type C/F)','Phone tripod for aurora photos','Hand and toe warmers','Lip balm and moisturiser','Card that works in EUR, NOK, SEK'];
 function vTools(){
   let h='<div><div class="eyebrow">Handy on the road</div><h1>Tools</h1></div>';
   h+='<div class="panel"><h2 style="margin-bottom:10px">Money</h2><div class="conv"><input class="field" id="amt" inputmode="decimal" value="'+esc(store.get('amt','100'))+'" aria-label="Amount"><select class="field" id="cur" aria-label="Currency">'+['EUR','NOK','SEK','SGD'].map(c=>'<option'+(c===store.get('cur','EUR')?' selected':'')+'>'+c+'</option>').join('')+'</select></div><div class="conv-out" id="convOut"></div>';
   h+='<div class="rates">'+['NOK','SEK','EUR'].map(c=>'<label for="r'+c+'">1 SGD = '+c+'<input class="field" id="r'+c+'" data-rate="'+c+'" inputmode="decimal" value="'+rates[c]+'"></label>').join('')+'</div><p class="muted" style="font-size:12.5px;margin-top:8px">Starting rates are rough guesses. Type in today’s rate from your bank app.</p></div>';
-  h+='<div class="panel"><h2 style="margin-bottom:4px">Aurora log</h2><p class="muted" style="font-size:14px;margin-bottom:12px">'+seenCount()+' of 8 hunts with a sighting. Tap a hunt to log it.</p><div class="hunts">'+DAYS.filter(d=>d.aurora).map(d=>'<button type="button" class="hunt'+(seen[d.aurora.n]?' on':'')+'" data-seen="'+d.aurora.n+'"><b>#'+d.aurora.n+'</b><span>'+wall(d.start,d.tz).getUTCDate()+' '+MO[wall(d.start,d.tz).getUTCMonth()]+'</span></button>').join('')+'</div></div>';
-  const pk=store.get('pack',{});const done=PACK.filter((x,i)=>pk[i]).length;
-  h+='<div class="panel"><div class="ol-row" style="margin-bottom:8px"><h2>Packing list</h2><span class="upd">'+done+' / '+PACK.length+' packed</span></div><div class="meter" style="margin:0 0 10px"><i style="width:'+Math.round(done/PACK.length*100)+'%"></i></div><div class="pack">'+PACK.map((x,i)=>'<label for="pk'+i+'"><input type="checkbox" id="pk'+i+'" data-pack="'+i+'"'+(pk[i]?' checked':'')+'><span>'+esc(x)+'</span></label>').join('')+'</div></div>';
   h+='<div class="panel"><h2 style="margin-bottom:10px">Aurora photos on a phone</h2><ul class="tips"><li><b>Night mode on, flash off.</b> Rest the phone on a tripod or a rail and the exposure stretches up to 30 seconds.</li><li><b>Focus</b> on a bright star or a distant light, then hold still until it finishes.</li><li><b>Dim your screen</b> and keep away from lights for 15 minutes so your eyes adapt.</li><li><b>Faint grey arcs</b> often show green on camera. Shoot them anyway.</li><li><b>Warm the battery</b> in an inside pocket between shots.</li></ul></div>';
   h+='<div class="panel"><div class="ol-row" style="margin-bottom:6px"><h2>Live data</h2><button type="button" class="btn sm" id="refreshData">Refresh</button></div><p class="muted" style="font-size:13.5px">Weather '+(WX?'updated '+ago(WX.t):'not loaded yet')+' · aurora Kp '+(KP?'updated '+ago(KP.t):'not loaded yet')+'. Sources: Open-Meteo and NOAA Space Weather Prediction Center. Saved for offline use.</p></div>';
   h+='<div class="panel"><h2 style="margin-bottom:6px">Preview a day</h2><p class="muted" style="font-size:14px;margin-bottom:10px">See what the Now tab will show on any day of the trip.</p><select class="field" id="pretendSel" aria-label="Preview day"><option value="">Live (real time)</option><option value="pre">The day before departure</option><option value="air">Mid-flight on AY132</option>'+DAYS.map(d=>'<option value="'+d.n+'">Day '+d.n+' · '+dstr(d.start,d.tz)+' · '+esc(d.title)+'</option>').join('')+'<option value="post">After landing home</option></select></div>';
@@ -828,7 +1027,7 @@ function render(scroll){
   document.querySelectorAll('.tabs a').forEach(a=>a.classList.toggle('on',a.dataset.tab===cur));
   const el=$('#v-'+cur);
   const keep=window.scrollY;
-  el.innerHTML=VIEWS[cur]();
+  if(cur==='map')renderMap(el);else el.innerHTML=VIEWS[cur]();
   if(scroll){el.classList.remove('enter');void el.offsetWidth;el.classList.add('enter')}
   updateGeo();
   if(cur==='tools'){conv();const ps=$('#pretendSel');ps.value=store.get('pretendKey','')}
@@ -849,13 +1048,15 @@ function openDriver(n){const d=DAYS[n-1];$('#sheetMap').href=gq(d.hq||d.hotel);$
 function closeDriver(){$('#sheet').hidden=true;try{wake&&wake.release()}catch(e){}wake=null}
 
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-seen],[data-driver],[data-jump],[data-goto],[data-copy],[data-del],[data-geo],#addContact,#sheetClose,#pretendOff,#noInstall,#refreshData');
+  const t=e.target.closest('[data-plane],[data-fab],[data-tog],[data-driver],[data-jump],[data-goto],[data-copy],[data-del],[data-geo],#addContact,#sheetClose,#pretendOff,#noInstall,#refreshData');
   if(!t)return;
+  if(t.dataset.plane){if(cur!=='map')location.hash='#map';setTimeout(focusPlane,250);return}
+  if(t.dataset.fab){const k=t.dataset.fab;if(k==='route'){follow=null;fitRoute();syncFabs()}else if(k==='me')focusMe();else focusPlane();return}
+  if(t.dataset.tog){toggleLayer(t.dataset.tog);return}
   if(t.dataset.geo){const a=t.dataset.geo;if(a==='start')geoStart();else if(a==='stop')geoStop();else shareGeo();return}
   if(t.id==='noInstall'){store.set('noInstall',true);render();return}
   if(t.id==='refreshData'){toast(navigator.onLine?'Refreshing…':'You’re offline');refreshData(true);return}
-  if(t.dataset.seen){toggleSeen(+t.dataset.seen)}
-  else if(t.dataset.driver){openDriver(+t.dataset.driver)}
+  if(t.dataset.driver){openDriver(+t.dataset.driver)}
   else if(t.dataset.jump){jump(+t.dataset.jump,true)}
   else if(t.dataset.goto){location.hash='#days';setTimeout(()=>jump(+t.dataset.goto,false),80)}
   else if(t.dataset.copy){const v=t.dataset.copy;const ok=()=>toast('Copied '+v);
@@ -877,7 +1078,6 @@ document.addEventListener('change',e=>{
   if(t.id==='cur'){store.set('cur',t.value);conv()}
   else if(t.id==='pretendSel'){setPretend(t.value)}
   else if(t.dataset.ci!=null&&cur==='sos'){render()}
-  else if(t.dataset.pack!=null){const pk=store.get('pack',{});pk[t.dataset.pack]=t.checked;store.set('pack',pk);t.blur();render()}
 });
 function setPretend(k){
   store.set('pretendKey',k);
@@ -930,6 +1130,8 @@ if(reduce)draw(4000);else requestAnimationFrame(loop);
 route();
 refreshData(false);
 setInterval(()=>refreshData(false),10*60e3);
+setInterval(()=>{if(cur==='map'&&!document.hidden){drawPlane();syncFabs()}},5000);
+setInterval(()=>{if(cur==='map')refreshOval(false)},5*60e3);
 addEventListener('online',()=>refreshData(true));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshData(false);softRender()}});
 })();
