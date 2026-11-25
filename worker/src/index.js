@@ -32,8 +32,54 @@ function json(body, status, headers) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...headers } });
 }
 
+// ---------- flight status (gate, terminal, delays) via AeroDataBox ----------
+const T = v => (v && v.utc ? Date.parse(v.utc.replace(' ', 'T')) : null);
+function leg(x) {
+  if (!x) return null;
+  return {
+    iata: x.airport && x.airport.iata, sched: T(x.scheduledTime), revised: T(x.revisedTime) || T(x.predictedTime),
+    runway: T(x.runwayTime), terminal: x.terminal || null, gate: x.gate || null,
+    checkIn: x.checkInDesk || null, belt: x.baggageBelt || null,
+  };
+}
+// cache longer when nothing is likely to change, to stay inside the free quota
+function ttlFor(f, now) {
+  const d = f && f.dep && (f.dep.revised || f.dep.sched), a = f && f.arr && (f.arr.revised || f.arr.sched);
+  if (!d) return 1800;
+  const m = 60e3;
+  if (now < d - 6 * 60 * m) return 3600;
+  if (now < d - 2 * 60 * m) return 1200;
+  if (now < d + 30 * m) return 300;
+  if (a && now < a - 60 * m) return 1800;
+  if (a && now < a + 90 * m) return 600;
+  return 3600;
+}
+async function flightStatus(env, flight, date, ctx) {
+  const key = new Request(`https://cache.local/status/${flight}/${date}`);
+  const cache = caches.default;
+  const hit = await cache.match(key);
+  if (hit) return hit.json();
+  if (!env.AERODATABOX_KEY) return { configured: false };
+  const r = await fetch(`https://aerodatabox.p.rapidapi.com/flights/number/${flight}/${date}?withAircraftImage=false&withLocation=false`, {
+    headers: { 'X-RapidAPI-Key': env.AERODATABOX_KEY, 'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com' },
+  });
+  if (r.status === 204 || r.status === 404) return { configured: true, found: false, t: Date.now() };
+  if (!r.ok) return { configured: true, found: false, error: 'Status service returned ' + r.status, t: Date.now() };
+  const list = await r.json();
+  const f0 = Array.isArray(list) ? list[0] : list;
+  const out = f0 ? {
+    configured: true, found: true, t: Date.now(), status: f0.status || 'Unknown',
+    dep: leg(f0.departure), arr: leg(f0.arrival),
+    aircraft: f0.aircraft ? { reg: f0.aircraft.reg || null, model: f0.aircraft.model || null } : null,
+    updated: f0.lastUpdatedUtc ? Date.parse(f0.lastUpdatedUtc.replace(' ', 'T')) : null,
+  } : { configured: true, found: false, t: Date.now() };
+  const ttl = out.found ? ttlFor(out, Date.now()) : 900;
+  ctx.waitUntil(cache.put(key, new Response(JSON.stringify(out), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=' + ttl } })));
+  return out;
+}
+
 export default {
-  async fetch(req) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url);
     const origin = req.headers.get('Origin') || '';
     const cors = {
@@ -43,6 +89,12 @@ export default {
     };
     if (req.method === 'OPTIONS') return new Response(null, { headers: cors });
     if (url.pathname === '/') return json({ ok: true, use: '/flight?cs=FIN132&lat=..&lon=..&hdg=..&hex=..' }, 200, cors);
+    if (url.pathname === '/status') {
+      const f = (url.searchParams.get('f') || '').toUpperCase(), d = url.searchParams.get('d') || '';
+      if (!/^AY\d{1,4}$/.test(f) || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return json({ error: 'Use /status?f=AY132&d=2026-11-25' }, 400, cors);
+      try { return json(await flightStatus(env, f, d, ctx), 200, { ...cors, 'Cache-Control': 'no-store' }); }
+      catch (e) { return json({ configured: !!env.AERODATABOX_KEY, found: false, error: 'Status lookup failed' }, 200, cors); }
+    }
     if (url.pathname !== '/flight') return json({ error: 'not found' }, 404, cors);
 
     const q = url.searchParams;

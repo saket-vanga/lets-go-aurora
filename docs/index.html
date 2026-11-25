@@ -64,10 +64,10 @@ a{color:var(--ice)}
 .pretend-bar button{background:var(--night);color:var(--snow);border:0;border-radius:8px;padding:5px 10px;font-size:12px}
 
 /* type */
-.eyebrow{font:500 12px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--aurora)}
+.eyebrow{font:600 14px/1.35 var(--body);color:var(--aurora)}
 h1{font:800 clamp(30px,8.5vw,52px)/1.02 var(--display);letter-spacing:-.02em;margin:8px 0 0;text-wrap:balance}
 h2{font:700 18px/1.2 var(--display);margin:0;text-wrap:balance}
-h3{font:600 12px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mist);margin:0 0 10px}
+h3{font:600 14px/1.3 var(--body);color:var(--mist);margin:0 0 10px}
 p{margin:0}
 .muted{color:var(--mist)}
 small{font-size:13px}
@@ -97,7 +97,7 @@ small{font-size:13px}
 
 /* mini cards */
 .mini{display:flex;flex-direction:column;gap:6px;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:14px;min-width:0;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.mini .k{font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
+.mini .k{font:600 13px/1.25 var(--body);color:var(--mist)}
 .mini .v{font:600 17px/1.25 var(--body)}
 .mini .s{font-size:13px;color:var(--mist)}
 button.mini{cursor:pointer}
@@ -150,7 +150,7 @@ button.mini:active{transform:scale(.98)}
 .day.today .dno span{color:var(--night)}
 .day-body{display:flex;flex-direction:column;gap:12px;margin-top:14px}
 .row{display:flex;gap:8px;align-items:baseline;font-size:14px;flex-wrap:wrap}
-.row .k{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mist);width:62px;flex:0 0 auto}
+.row .k{font:600 13px var(--body);color:var(--mist);width:72px;flex:0 0 auto}
 .aur{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:linear-gradient(90deg,rgba(111,245,196,.1),rgba(182,156,255,.1));border:1px dashed rgba(111,245,196,.35);font-size:14px}
 .aur button,.seebtn{border:1px solid var(--aurora);background:transparent;color:var(--aurora);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:700;white-space:nowrap}
 .aur.seen button,.seebtn.on{background:var(--aurora);color:var(--night)}
@@ -162,7 +162,7 @@ button.mini:active{transform:scale(.98)}
   mask:radial-gradient(circle 11px at 0 66%,transparent 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 11px at 100% 66%,transparent 98%,#000) right/51% 100% no-repeat}
 .pass.next{border-color:var(--ice);background:linear-gradient(160deg,rgba(143,211,255,.16),var(--panel))}
 .pass.done{opacity:.55}
-.pass .top-row{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;font:600 12px var(--mono);color:var(--mist);letter-spacing:.06em}
+.pass .top-row{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font:600 13px var(--body);color:var(--mist)}
 .pass .top-row b{color:var(--snow);font-size:14px}
 .iata{font:800 clamp(34px,10vw,48px)/1 var(--display);letter-spacing:-.02em}
 .pass .end{text-align:right}
@@ -220,9 +220,12 @@ button.mini:active{transform:scale(.98)}
 /* tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;justify-content:center;padding:8px max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));background:rgba(6,10,22,.82);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border-top:1px solid var(--line)}
 .tabs-in{display:grid;grid-template-columns:repeat(6,1fr);width:100%;max-width:560px}
-.tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;color:var(--mist);text-decoration:none;font:600 10.5px var(--body);letter-spacing:.02em}
+.tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;color:var(--mist);text-decoration:none;font:600 11px var(--body)}
 .tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tabs a.on{color:var(--aurora)}
+.tabs a svg{box-sizing:content-box;padding:3px 12px;border-radius:12px;transition:background .2s}
+.tabs a.on svg{background:rgba(111,245,196,.16)}
+.tabs a.sos.on svg{background:rgba(255,90,95,.16)}
 .tabs a.sos{color:var(--sos)}
 .tabs a.sos.on{color:var(--sos);text-shadow:0 0 10px rgba(255,90,95,.6)}
 
@@ -384,6 +387,42 @@ button.mini:active{transform:scale(.98)}
 .ins-arrow.up{animation-name:bobup}
 @keyframes bobup{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @media (prefers-reduced-motion:reduce){.ins-arrow,.ins,.ins-back{animation:none}}
+/* quick actions */
+.qa{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.qa-b{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:92px;padding:12px 6px;border-radius:18px;border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--snow);text-decoration:none;font:600 12.5px/1.2 var(--body);text-align:center}
+.qa-b svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;color:var(--aurora)}
+.qa-b.sos svg{color:var(--sos)}
+.qa-b:active{transform:scale(.96)}
+/* flight status */
+.fst{display:inline-flex;align-items:center;gap:6px;font:700 12.5px/1 var(--body);padding:6px 11px;border-radius:999px;white-space:nowrap}
+.fst::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.fst.ok{background:rgba(111,245,196,.16);color:var(--aurora)}
+.fst.go{background:var(--ice);color:var(--night)}
+.fst.go::before{animation:pulse 1.4s infinite}
+.fst.warn{background:rgba(255,197,107,.18);color:var(--sun)}
+.fst.bad{background:rgba(255,90,95,.2);color:var(--sos)}
+.fst.dim{background:rgba(150,180,255,.1);color:var(--mist)}
+.gg{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.gg div{padding:10px 8px;border-radius:14px;background:rgba(0,0,0,.25);border:1px solid var(--line);text-align:center;min-width:0}
+.gg span{display:block;font:600 12px var(--body);color:var(--mist)}
+.gg b{display:block;font:800 24px/1.15 var(--display);margin-top:4px;overflow-wrap:anywhere}
+.gg div.has{border-color:rgba(143,211,255,.55);background:rgba(143,211,255,.1)}
+.gg div.has b{color:var(--ice)}
+.gg-hint{grid-column:1/-1;font-size:13px;color:var(--mist);margin-top:8px}
+.t.late{color:var(--sun)}
+s.was{display:block;font:500 13px var(--mono);color:var(--mist)}
+.fh-route{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:6px}
+.fh-route b{font:800 34px/1 var(--display)}
+.fh-route i{font-style:normal;color:var(--ice);font-size:22px}
+.fh-route span{color:var(--mist);font-size:14px;flex-basis:100%}
+.fh-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+/* day accordion */
+details.day>summary{list-style:none;cursor:pointer}
+details.day>summary::-webkit-details-marker{display:none}
+.chev{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;align-self:center;transition:transform .2s}
+.chev::before{content:"";width:8px;height:8px;border-right:2px solid var(--mist);border-bottom:2px solid var(--mist);transform:translateY(-2px) rotate(45deg)}
+details.day[open] .chev{transform:rotate(180deg)}
+.day-hint{font-size:13px;color:var(--mist);margin-top:-6px}
 @media (prefers-reduced-motion:reduce){.view.enter{animation:none}.pin.today,.me-dot{animation:none}.live i,.m-me-ring{animation:none}}
 </style>
 
@@ -718,6 +757,78 @@ function planeNow(f){
   }
   return planeState(f,t);
 }
+/* ---------- gate, terminal and delays (Cloudflare Worker → AeroDataBox) ---------- */
+let FST=store.get('fst',{}), stBusy=false;
+const depDate=f=>{const d=wall(f.d,f.dOff);return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate())};
+async function refreshStatus(force){
+  if(stBusy||LIVE_API.startsWith('__')||!navigator.onLine)return;stBusy=true;
+  const t=Date.now();let changed=false;
+  for(const f of FLIGHTS){
+    if(t<f.d-36*H||t>f.a+4*H)continue;
+    const old=FST[f.no];if(!force&&old&&t-old.t<4*60e3)continue;
+    try{const r=await fetch(LIVE_API+'/status?f='+f.no+'&d='+depDate(f)).then(r=>r.json());if(r&&r.configured!==undefined){FST[f.no]=Object.assign(r,{t:Date.now()});changed=true}}catch(e){}
+  }
+  if(changed){store.set('fst',FST);softRender()}
+  stBusy=false;
+}
+function stInfo(f){
+  const s=FST[f.no];if(!s||!s.found)return null;
+  const sd=s.dep||{},sa=s.arr||{};
+  const schedD=sd.sched||f.d,depT=sd.runway&&/depart|enroute|approach|arriv/i.test(s.status)?sd.runway:(sd.revised||schedD);
+  const arrT=sa.revised||sa.sched||f.a;
+  const delay=Math.round(((sd.revised||schedD)-schedD)/6e4);
+  const st=(s.status||'').toLowerCase();let label,cls;
+  if(/cancel/.test(st)){label='Cancelled';cls='bad'}
+  else if(/divert/.test(st)){label='Diverted';cls='bad'}
+  else if(/arrived/.test(st)){label='Landed';cls='ok'}
+  else if(/approach/.test(st)){label='Landing soon';cls='ok'}
+  else if(/departed|enroute/.test(st)){label=delay>=15?'Departed late':'Departed';cls='ok'}
+  else if(/gateclosed/.test(st)){label='Gate closed';cls='warn'}
+  else if(/boarding/.test(st)){label='Boarding now';cls='go'}
+  else if(delay>=15||/delayed/.test(st)){label='Delayed'+(delay>0?' '+delay+' min':'');cls='warn'}
+  else if(/checkin/.test(st)){label='Check-in open';cls='ok'}
+  else{label=delay<=-5?'Early':'On time';cls='ok'}
+  return {s,label,cls,delay,depT:sd.revised||schedD,arrT,gate:sd.gate,term:sd.terminal,checkIn:sd.checkIn,arrGate:sa.gate,arrTerm:sa.terminal,belt:sa.belt,updated:s.updated||s.t};
+}
+const fstChip=si=>'<span class="fst '+si.cls+'">'+esc(si.label)+'</span>';
+function gateGrid(f,si,arrival){
+  const cell=(k,v)=>'<div'+(v?' class="has"':'')+'><span>'+k+'</span><b>'+(v?esc(v):'—')+'</b></div>';
+  let h='<div class="gg">';
+  if(arrival)h+=cell('Arrival terminal',si&&si.arrTerm)+cell('Arrival gate',si&&si.arrGate)+cell('Bag belt',si&&si.belt);
+  else h+=cell('Terminal',si&&si.term)+cell('Gate',si&&si.gate)+cell('Check-in',si&&si.checkIn);
+  h+='</div>';
+  const S=FST[f.no];
+  if(!arrival&&!(si&&si.gate)){
+    const soon=f.d-now()<36*H;
+    h+='<p class="gg-hint">'+(S&&S.configured?'The gate usually appears about 2 hours before departure.':soon?'Check the gate on the airport screens or in the Finnair app.':'Gate and live status appear the day before the flight.')+'</p>';
+  }else if(si&&si.updated)h+='<p class="gg-hint">Updated '+ago(si.updated)+'</p>';
+  return h;
+}
+function flightHero(f,label){
+  const si=stInfo(f),dep=si?si.depT:f.d,arr=si?si.arrT:f.a,late=si&&si.delay>=5;
+  let h='<div class="panel"><div class="fh-top"><span class="eyebrow">'+label+'</span>'+(si?fstChip(si):'')+'</div>';
+  h+='<div class="fh-route"><b>'+f.from+'</b><i>→</i><b>'+f.to+'</b><span>'+f.no+' · '+CITY[f.from]+' to '+CITY[f.to]+'</span></div>';
+  h+=gateGrid(f,si,false);
+  h+=cdHTML(dep);
+  h+='<p class="cd-sub">Departs <b>'+hm(dep,f.dOff)+'</b>'+(late?' <s>'+hm(f.d,f.dOff)+'</s>':'')+' · lands <b>'+hm(arr,f.aOff)+'</b> '+(f.aOff!==f.dOff?TZN[f.aOff]+' local':'')+'</p>';
+  return h+'<div class="trk">'+trackBtns(f,false)+'</div></div>';
+}
+const QI={
+ nav:'<svg viewBox="0 0 24 24"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg>',
+ card:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h6M7 14h10"/></svg>',
+ map:'<svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>',
+ sos:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+ plane:'<svg viewBox="0 0 24 24"><path d="M10.5 13.5 3 11l1.5-1.5 8 1 4-4a2 2 0 0 1 3 3l-4 4 1 8L15 23l-2.5-7.5"/></svg>',
+ cal:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>'
+};
+function quickActions(day){
+  const b=(href,ic,t,cls)=>'<a class="qa-b'+(cls?' '+cls:'')+'" href="'+href+'"'+(href.startsWith('http')?' target="_blank" rel="noopener"':'')+'>'+QI[ic]+'<span>'+t+'</span></a>';
+  let h='<div class="qa">';
+  if(day&&day.hq){h+=b(gd(day.hq),'nav','Hotel directions');h+='<button type="button" class="qa-b" data-driver="'+day.n+'">'+QI.card+'<span>Show taxi driver</span></button>'}
+  else{h+=b('#flights','plane','Flight status');h+=b('#days','cal','Day by day')}
+  h+=b('#map','map','Live map');h+=b('#sos','sos','Emergency help','sos');
+  return h+'</div>';
+}
 const airborne=t=>FLIGHTS.find(f=>(t>=f.d&&t<f.a)||(liveFor(f)&&liveFor(f).ac.alt!=='ground'));
 function plStatsHTML(f){
   const s=planeNow(f);if(s.k!=='air')return '';
@@ -1019,7 +1130,8 @@ function vNow(){
     const f=FLIGHTS[0];
     h+=installTip();
     h+='<div><div class="eyebrow">Departs '+dstr(f.d,8)+' · Changi</div><h1>Aurora, here we come.</h1></div>';
-    h+='<div class="panel"><h3>Wheels up · '+f.no+' to Helsinki</h3>'+cdHTML(f.d)+'<p class="cd-sub">Assemble at Changi for <b>'+f.no+'</b>, departing <b>22:05</b>, landing Helsinki <b>05:45</b> next morning.</p><div class="trk">'+trackBtns(f,false)+'</div></div>';
+    h+=flightHero(f,'Your first flight');
+    h+=quickActions(null);
     h+='<div class="panel stats"><div><b>13</b><span>days</span></div><div><b>3</b><span>countries</span></div><div><b>8</b><span>aurora hunts</span></div></div>';
     const s=sunLine(DAYS[1]);
     h+='<div class="grid2"><div class="mini"><span class="k">First stop · Tromsø</span><span class="v">'+s.v+'</span><span class="s">'+s.s+'</span></div>'+wxMini(1)+'</div>';
@@ -1042,9 +1154,12 @@ function vNow(){
   if(inAir){
     h+='<div class="panel"><h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="status air">In the air</span>'+inAir.no+' to '+CITY[inAir.to]+'</h3>'+cdHTML(inAir.a)+'<div class="air" data-air="'+inAir.no+'"><span>'+inAir.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+inAir.to+'</span></div><p class="cd-sub">Lands <b>'+hm(inAir.a,inAir.aOff)+'</b> local time ('+TZN[inAir.aOff]+').</p><div class="plstats" data-plstat="'+inAir.no+'">'+plStatsHTML(inAir)+'</div><div class="trk">'+trackBtns(inAir,true)+'</div></div>';
   }else if(next&&next.d-t<36*H){
+    h+=flightHero(next,'Your next flight');
+  }else if(false){
     h+='<div class="panel"><h3>Next flight · '+next.no+' '+next.from+' → '+next.to+'</h3>'+cdHTML(next.d)+'<p class="cd-sub">Departs <b>'+hm(next.d,next.dOff)+'</b> '+TZN[next.dOff]+' from '+CITY[next.from]+'.</p><div class="trk">'+trackBtns(next,false)+'</div></div>';
   }
   const s=sunLine(day);
+  h+=quickActions(day);
   h+='<div class="grid2">'+hotelCard(day)+auroraCard(day)+wxMini(p.i)+'<div class="mini"><span class="k">Daylight</span><span class="v">'+s.v+'</span><span class="s">'+s.s+'</span></div></div>';
   if(day.aurora) h+=outlookPanel(p.i);
   h+='<div class="panel"><h3>Today'+(day.opt?' · <span class="chip opt">has optional add-on</span>':'')+'</h3>'+planList(day)+(day.meals.length?'<div class="row" style="margin-top:14px"><span class="k">Meals</span><div class="chips">'+day.meals.map(m=>'<span class="chip">'+esc(m)+'</span>').join('')+'</div></div>':'')+'</div>';
@@ -1058,11 +1173,11 @@ function vNow(){
 
 function vDays(){
   const p=phase(now());const ti=p.k==='pre'?-1:p.k==='post'?13:p.i;
-  let h='<div><div class="eyebrow">25 Nov – 07 Dec · Finland · Norway · Sweden</div><h1>13 days</h1></div>';
+  let h='<div><div class="eyebrow">25 Nov – 7 Dec · Norway · Sweden · Finland</div><h1>13 days</h1></div><p class="day-hint">Tap a day to open it.</p>';
   h+='<div class="strip" id="strip">'+DAYS.map((d,k)=>{const w=wall(d.start,d.tz);return '<button type="button" data-jump="'+d.n+'" class="'+(k<ti?'past':k===ti?'today':'')+'"><span>D'+d.n+'</span><b>'+w.getUTCDate()+'</b><span>'+MO[w.getUTCMonth()]+'</span></button>'}).join('')+'</div>';
   DAYS.forEach((d,k)=>{
     const cls=k<ti?'past':k===ti?'today':'';
-    h+='<article class="panel day '+cls+'" id="day-'+d.n+'"><div class="day-h"><div class="dno"><b>'+d.n+'</b><span>'+WD[wall(d.start,d.tz).getUTCDay()].toUpperCase()+'</span></div><div style="min-width:0;flex:1"><div class="eyebrow" style="color:var(--mist)">'+dstr(d.start,d.tz)+' · '+esc(d.place)+'</div><h2 style="margin-top:4px">'+esc(d.title)+'</h2><div class="chips" style="margin-top:8px"><span class="chip cc">'+CC[d.cc]+'</span>'+(k===ti?'<span class="badge">Today</span>':'')+(d.opt?'<span class="chip opt">Optional add-on</span>':'')+'</div></div></div>';
+    h+='<details class="panel day '+cls+'" id="day-'+d.n+'"'+(k===ti||(ti<0&&k<2)||ti>=13?' open':'')+'><summary class="day-h"><div class="dno"><b>'+d.n+'</b><span>'+WD[wall(d.start,d.tz).getUTCDay()].toUpperCase()+'</span></div><div style="min-width:0;flex:1"><div class="eyebrow" style="color:var(--mist)">'+dstr(d.start,d.tz)+' · '+esc(d.place)+'</div><h2 style="margin-top:4px">'+esc(d.title)+'</h2><div class="chips" style="margin-top:8px"><span class="chip cc">'+CC[d.cc]+'</span>'+(k===ti?'<span class="badge">Today</span>':'')+(d.opt?'<span class="chip opt">Optional add-on</span>':'')+'</div></div><span class="chev" aria-hidden="true"></span></summary>';
     h+='<div class="day-body">'+planList(d);
     if(d.meals.length) h+='<div class="row"><span class="k">Meals</span><div class="chips">'+d.meals.map(m=>'<span class="chip">'+esc(m)+'</span>').join('')+'</div></div>';
     h+='<div class="row"><span class="k">Stay</span><span>'+(d.hotel?esc(d.hotel)+' <span class="muted">or similar</span>':'<span class="muted">'+esc(d.night)+'</span>')+'</span></div>';
@@ -1071,30 +1186,34 @@ function vDays(){
     if(d.aurora){const o=outlook(k);if(o)h+='<div class="row"><span class="k">Outlook</span><span class="pill '+o.g+'">'+GRADE[o.g]+' aurora chance</span><span class="muted" style="font-size:13px">'+(o.cloud!=null?o.cloud+'% cloud':'')+(o.kp!=null?' · Kp '+o.kp.toFixed(1):'')+'</span></div>'}
     if(d.places.length)h+=placesHTML(d);
     if(d.aurora){h+='<div class="aur"><span><b>Aurora hunt #'+d.aurora.n+' of 8</b><br><span class="muted">'+esc(d.aurora.how)+'</span></span></div>'}
-    h+='</div></article>';
+    h+='</div></details>';
   });
   return h;
 }
 
 function vFlights(){
-  const t=now();const next=FLIGHTS.find(f=>f.a>t);
-  let h='<div><div class="eyebrow">Finnair · 4 flights · times are local</div><h1>Flights</h1></div>';
+  const t=now();
+  let h='<div><div class="eyebrow">Finnair · all times are local</div><h1>Flights</h1></div>';
   const fa=airborne(t);
-  if(fa)h+='<div class="panel" style="border-color:var(--aurora)"><h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="status air">Live</span>'+fa.no+' to '+CITY[fa.to]+'</h3><div class="air" data-air="'+fa.no+'"><span>'+fa.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+fa.to+'</span></div><div class="plstats" data-plstat="'+fa.no+'">'+plStatsHTML(fa)+'</div><div class="trk">'+trackBtns(fa,true)+'</div><p class="muted" style="font-size:12.5px;margin-top:10px">Live radar from ADS-B receivers (adsb.lol). When no signal is in range, for example over remote areas, the position is estimated from the schedule.</p></div>';
+  if(fa)h+='<div class="panel" style="border-color:var(--aurora)"><h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="status air">Live</span>'+fa.no+' to '+CITY[fa.to]+'</h3><div class="air" data-air="'+fa.no+'"><span>'+fa.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+fa.to+'</span></div><div class="plstats" data-plstat="'+fa.no+'">'+plStatsHTML(fa)+'</div>'+gateGrid(fa,stInfo(fa),true)+'<div class="trk">'+trackBtns(fa,true)+'</div><p class="muted" style="font-size:12.5px;margin-top:10px">Live radar from ADS-B receivers. Over remote areas with no signal, the position is estimated from the schedule.</p></div>';
+  const next=FLIGHTS.find(f=>{const si=stInfo(f);return (si?si.arrT:f.a)>t});
   FLIGHTS.forEach(f=>{
-    const air=t>=f.d&&t<f.a, done=t>=f.a, isNext=f===next&&!air;
-    const st=air?'<span class="status air">In the air</span>':done?'<span class="status">Landed</span>':isNext?'<span class="status next">Next</span>':'<span class="status">Day '+f.day+'</span>';
-    const plus=wall(f.a,f.aOff).getUTCDate()!==wall(f.d,f.dOff).getUTCDate();
-    h+='<div class="pass '+(done?'done':isNext||air?'next':'')+'"><div class="top-row"><b>'+f.no+'</b><span>'+dstr(f.d,f.dOff).toUpperCase()+'</span>'+st+'</div>';
-    h+='<div><div class="iata">'+f.from+'</div><div class="city">'+CITY[f.from]+'</div><div class="t">'+hm(f.d,f.dOff)+'</div></div>';
+    const si=stInfo(f),depT=si?si.depT:f.d,arrT=si?si.arrT:f.a,late=si&&si.delay>=5;
+    const air=fa===f, done=t>=arrT&&!air, isNext=f===next&&!air;
+    const chip=si?fstChip(si):'<span class="fst '+(air?'go':done?'dim':isNext?'ok':'dim')+'">'+(air?'In the air':done?'Landed':isNext?'Next flight':'Day '+f.day)+'</span>';
+    const plus=wall(arrT,f.aOff).getUTCDate()!==wall(depT,f.dOff).getUTCDate();
+    h+='<div class="pass '+(done?'done':isNext||air?'next':'')+'"><div class="top-row"><span><b>'+f.no+'</b> · Day '+f.day+' · '+dstr(depT,f.dOff)+'</span>'+chip+'</div>';
+    h+='<div><div class="iata">'+f.from+'</div><div class="city">'+CITY[f.from]+'</div><div class="t'+(late?' late':'')+'">'+hm(depT,f.dOff)+'</div>'+(late?'<s class="was">'+hm(f.d,f.dOff)+'</s>':'')+'</div>';
     h+='<div class="mid">'+PLANE+'<span>'+dur((f.a-f.d)/6e4)+'</span></div>';
-    h+='<div class="end"><div class="iata">'+f.to+'</div><div class="city">'+CITY[f.to]+'</div><div class="t">'+hm(f.a,f.aOff)+(plus?'<sup style="font-size:12px;color:var(--ice)"> +1</sup>':'')+'</div></div>';
-    h+='<div class="foot"><span>DEP <b>'+TZN[f.dOff]+'</b> · ARR <b>'+TZN[f.aOff]+'</b></span><span>In SG time: <b>'+hm(f.d,8)+' → '+hm(f.a,8)+'</b></span><span>'+Math.round(f.km).toLocaleString()+' km</span></div>';
+    h+='<div class="end"><div class="iata">'+f.to+'</div><div class="city">'+CITY[f.to]+'</div><div class="t'+(late?' late':'')+'">'+hm(arrT,f.aOff)+(plus?'<sup style="font-size:12px;color:var(--ice)"> +1</sup>':'')+'</div>'+(late?'<s class="was">'+hm(f.a,f.aOff)+'</s>':'')+'</div>';
+    if(!done&&!air)h+=gateGrid(f,si,false);
+    if(done&&si&&si.belt)h+=gateGrid(f,si,true);
+    if(isNext)h+='<div style="grid-column:1/-1">'+cdHTML(depT)+'<p class="cd-sub">until departure</p></div>';
+    h+='<div class="foot"><span>Singapore time <b>'+hm(depT,8)+' → '+hm(arrT,8)+'</b></span><span>'+Math.round(f.km).toLocaleString()+' km</span></div>';
     if(!done)h+='<div class="trk">'+trackBtns(f,air)+'</div>';
-    if(isNext||air) h+='<div style="grid-column:1/-1">'+cdHTML(air?f.a:f.d)+'<p class="cd-sub">'+(air?'until landing':'until departure')+'</p></div>';
     h+='</div>';
   });
-  h+='<p class="muted" style="font-size:13.5px">Gates and any schedule changes show in the Finnair app. Domestic flight times can change; your tour manager will confirm.</p>';
+  h+='<p class="muted" style="font-size:13.5px">Live gate and delay info comes from AeroDataBox and updates every few minutes. Always double-check the airport screens before you board.</p>';
   return h;
 }
 
@@ -1153,7 +1272,9 @@ function render(scroll){
   document.querySelectorAll('.tabs a').forEach(a=>a.classList.toggle('on',a.dataset.tab===cur));
   const el=$('#v-'+cur);
   const keep=window.scrollY;
+  const openD=scroll?null:[...el.querySelectorAll('details[open]')].map(d=>d.id);
   if(cur==='map')renderMap(el);else el.innerHTML=VIEWS[cur]();
+  if(openD&&openD.length)el.querySelectorAll('details.day').forEach(d=>d.open=openD.includes(d.id));
   if(scroll){el.classList.remove('enter');void el.offsetWidth;el.classList.add('enter')}
   updateGeo();
   if(cur==='tools'){conv();const ps=$('#pretendSel');ps.value=store.get('pretendKey','')}
@@ -1164,7 +1285,7 @@ function render(scroll){
   else window.scrollTo(0,keep);
   lastPhase=JSON.stringify(phase(now()))+(FLIGHTS.find(f=>now()>=f.d&&now()<f.a)||{}).no;
 }
-function jump(n,smooth){const d=$('#day-'+n);if(d)d.scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});const b=document.querySelector('[data-jump="'+n+'"]');if(b)b.scrollIntoView({inline:'center',block:'nearest'})}
+function jump(n,smooth){const d=$('#day-'+n);if(d&&d.tagName==='DETAILS')d.open=true;if(d)d.scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});const b=document.querySelector('[data-jump="'+n+'"]');if(b)b.scrollIntoView({inline:'center',block:'nearest'})}
 
 function softRender(){const a=document.activeElement;if(a&&a.matches&&a.matches('input,select'))return;if(!$('#sheet').hidden)return;render(false)}
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,1800)}
@@ -1269,9 +1390,10 @@ refreshData(false);
 setInterval(()=>refreshData(false),10*60e3);
 setInterval(()=>{if(cur==='map'&&!document.hidden){drawPlane();syncFabs()}},5000);
 setInterval(pollLive,15000);pollLive();
+refreshStatus(false);setInterval(()=>{if(!document.hidden)refreshStatus(false)},5*60e3);
 setInterval(()=>{if(cur==='map')refreshOval(false)},5*60e3);
 addEventListener('online',()=>refreshData(true));
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshData(false);softRender()}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshData(false);refreshStatus(false);softRender()}});
 })();
 </script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
