@@ -344,6 +344,7 @@ button.mini:active{transform:scale(.98)}
 .plstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
 .plstats div{padding:10px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid var(--line)}
 .plstats b{display:block;font:700 18px var(--mono);font-variant-numeric:tabular-nums}
+.plstats .radar{color:var(--aurora);font-size:15px}
 .plstats span{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mist)}
 @media (prefers-reduced-motion:reduce){.view.enter{animation:none}.pin.today,.me-dot{animation:none}.live i,.m-me-ring{animation:none}}
 </style>
@@ -647,11 +648,42 @@ function planeState(f,t){
   const pos=[A[0]+(B[0]-A[0])*u,A[1]+(B[1]-A[1])*u];
   return {k:'air',fr,pos,hdg:bearing(A,B),flown:f.km*fr,left:f.km*(1-fr),trail:f.path.slice(0,i+1).concat([pos])};
 }
-const airborne=t=>FLIGHTS.find(f=>t>=f.d&&t<f.a);
+/* ---------- real radar positions (via our Cloudflare Worker → adsb.lol / adsb.fi) ---------- */
+const LIVE_API='https://lets-go-aurora-flights.gotlobang.workers.dev';
+let LIVE=store.get('live',{}), liveBusy=false;
+const liveWindow=(f,t)=>t>=f.d-30*60e3&&t<=f.a+90*60e3;
+function liveFor(f){
+  if(pretend!=null)return null;const L=LIVE[f.no];if(!L||!L.ac)return null;
+  const age=(Date.now()-L.t)/1e3+(+L.ac.seen||0);
+  return age<240&&liveWindow(f,Date.now())?Object.assign({},L,{age}):null;
+}
+async function pollLive(){
+  if(pretend!=null||liveBusy||!navigator.onLine||document.hidden||LIVE_API.startsWith('__'))return;
+  const t=Date.now(),f=FLIGHTS.find(x=>liveWindow(x,t));if(!f)return;
+  liveBusy=true;
+  try{
+    const est=planeState(f,Math.min(Math.max(t,f.d+1),f.a-1));
+    const old=LIVE[f.no]&&LIVE[f.no].ac, hex=old&&Date.now()-LIVE[f.no].t<3*H?old.hex:'';
+    const u=LIVE_API+'/flight?cs=FIN'+f.no.slice(2)+'&lat='+est.pos[0].toFixed(3)+'&lon='+est.pos[1].toFixed(3)+'&hdg='+est.hdg.toFixed(0)+(hex?'&hex='+hex:'');
+    const r=await fetch(u).then(r=>r.json());
+    if(r&&r.ac){LIVE[f.no]={ac:r.ac,t:Date.now(),source:r.source};store.set('live',LIVE);if(cur==='map')drawPlane()}
+  }catch(e){}
+  liveBusy=false;
+}
+function planeNow(f){
+  const t=now(),L=liveFor(f);
+  if(L&&L.ac.alt!=='ground'){
+    const pos=[L.ac.lat,L.ac.lon],dest=AP[f.to],left=km(pos[0],pos[1],dest[0],dest[1]),flown=Math.max(0,f.km-left),fr=Math.min(1,flown/f.km);
+    const i=Math.min(300,Math.floor(fr*300));
+    return {k:'air',live:L,fr,pos,hdg:+L.ac.track||planeState(f,Math.min(Math.max(t,f.d+1),f.a-1)).hdg||0,flown,left,trail:f.path.slice(0,i+1).concat([pos])};
+  }
+  return planeState(f,t);
+}
+const airborne=t=>FLIGHTS.find(f=>(t>=f.d&&t<f.a)||(liveFor(f)&&liveFor(f).ac.alt!=='ground'));
 function plStatsHTML(f){
-  const s=planeState(f,now());if(s.k!=='air')return '';
+  const s=planeNow(f);if(s.k!=='air')return '';
   const left=f.a-now(),hh=Math.floor(left/H),mm=Math.floor(left%H/6e4);
-  return '<div><b>'+Math.round(s.flown).toLocaleString()+'</b><span>km flown</span></div><div><b>'+Math.round(s.left).toLocaleString()+'</b><span>km to go</span></div><div><b>'+hh+'h '+pad(mm)+'</b><span>to landing</span></div>';
+  return '<div><b>'+Math.round(s.flown).toLocaleString()+'</b><span>km flown</span></div><div><b>'+Math.round(s.left).toLocaleString()+'</b><span>km to go</span></div><div><b>'+hh+'h '+pad(mm)+'</b><span>to landing</span></div>'+(s.live?'<div><b>'+(isFinite(+s.live.ac.alt)?Math.round(+s.live.ac.alt).toLocaleString():'—')+'</b><span>feet</span></div><div><b>'+(s.live.ac.gs?Math.round(s.live.ac.gs*1.852):'—')+'</b><span>km/h</span></div><div><b class="radar">● '+Math.round(s.live.age)+'s</b><span>radar · '+esc(s.live.ac.flight||'')+'</span></div>':'<div style="grid-column:1/-1;border-style:dashed"><span>Estimated from schedule'+(LIVE_API.startsWith('__')?'':navigator.onLine?' · looking for radar signal…':' · offline')+'</span></div>');
 }
 function trackBtns(f,air){
   return '<a class="btn sm" href="'+FR24(f)+'" target="_blank" rel="noopener">Flightradar24</a><a class="btn sm" href="'+FAW(f)+'" target="_blank" rel="noopener">FlightAware</a>'+(air?'<button type="button" class="btn sm primary" data-plane="1">'+PIN+'Watch on map</button>':'');
@@ -731,10 +763,10 @@ function ovChip(){
 }
 function drawPlane(){
   if(!LM)return;LM.plane.clearLayers();
-  const f=airborne(now());if(!f)return;const s=planeState(f,now());
+  const f=airborne(now());if(!f)return;const s=planeNow(f);
   L.polyline(s.trail,{color:'#8fd3ff',weight:3.5,opacity:.95,interactive:false}).addTo(LM.plane);
   L.marker(s.pos,{zIndexOffset:2000,icon:L.divIcon({className:'plane-ic',html:'<div style="transform:rotate('+s.hdg.toFixed(0)+'deg)">'+PLANE_N+'</div>',iconSize:[40,40],iconAnchor:[20,20]})})
-   .bindPopup('<b>'+f.no+' · '+f.from+' → '+f.to+'</b><span class="muted">Estimated from the schedule</span><div style="margin-top:6px">'+Math.round(s.left).toLocaleString()+' km to go · lands '+hm(f.a,f.aOff)+' '+TZN[f.aOff]+'</div><div class="btns" style="margin-top:10px"><a class="btn sm" href="'+FR24(f)+'" target="_blank" rel="noopener">Flightradar24</a></div>').addTo(LM.plane);
+   .bindPopup('<b>'+f.no+' · '+f.from+' → '+f.to+'</b><span class="muted">'+(s.live?'Radar position · '+esc(s.live.ac.flight)+' · '+(isFinite(+s.live.ac.alt)?Math.round(+s.live.ac.alt).toLocaleString()+' ft':''):'Estimated from the schedule')+'</span><div style="margin-top:6px">'+Math.round(s.left).toLocaleString()+' km to go · lands '+hm(f.a,f.aOff)+' '+TZN[f.aOff]+'</div><div class="btns" style="margin-top:10px"><a class="btn sm" href="'+FR24(f)+'" target="_blank" rel="noopener">Flightradar24</a></div>').addTo(LM.plane);
   if(follow==='plane')LM.map.panTo(s.pos,{animate:true});
 }
 function drawMe(){
@@ -747,7 +779,7 @@ function fitRoute(anim){if(!LM)return;LM.map.fitBounds(L.latLngBounds(Object.ent
 function focusPlane(){
   const f=airborne(now());
   if(!f){toast('No flight in the air right now');return}
-  if(!LM)return;follow='plane';const s=planeState(f,now());LM.map.setView(s.pos,f.km>3000?4:6,{animate:true});drawPlane();syncFabs();
+  if(!LM)return;follow='plane';const s=planeNow(f);LM.map.setView(s.pos,f.km>3000?4:6,{animate:true});drawPlane();syncFabs();
 }
 function focusMe(){
   if(!geo.on)geoStart();follow='me';
@@ -845,7 +877,7 @@ function tickCD(){
     el.innerHTML=p.slice(start).map((v,i)=>'<div class="u"><b>'+pad(v)+'</b><i>'+L[i+start]+'</i></div>').join('');
   });
   document.querySelectorAll('[data-air]').forEach(el=>{
-    const f=FLIGHTS.find(x=>x.no===el.dataset.air);const pct=Math.min(1,Math.max(0,(now()-f.d)/(f.a-f.d)))*100;
+    const f=FLIGHTS.find(x=>x.no===el.dataset.air);const ps=planeNow(f);const pct=Math.min(1,Math.max(0,ps.fr!=null?ps.fr:(now()-f.d)/(f.a-f.d)))*100;
     el.querySelector('i').style.width=pct+'%';el.querySelector('em').style.left=pct+'%';
   });
   document.querySelectorAll('[data-plstat]').forEach(el=>{const f=FLIGHTS.find(x=>x.no===el.dataset.plstat);el.innerHTML=plStatsHTML(f)});
@@ -955,7 +987,7 @@ function vFlights(){
   const t=now();const next=FLIGHTS.find(f=>f.a>t);
   let h='<div><div class="eyebrow">Finnair · 4 flights · times are local</div><h1>Flights</h1></div>';
   const fa=airborne(t);
-  if(fa)h+='<div class="panel" style="border-color:var(--aurora)"><h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="status air">Live</span>'+fa.no+' to '+CITY[fa.to]+'</h3><div class="air" data-air="'+fa.no+'"><span>'+fa.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+fa.to+'</span></div><div class="plstats" data-plstat="'+fa.no+'">'+plStatsHTML(fa)+'</div><div class="trk">'+trackBtns(fa,true)+'</div><p class="muted" style="font-size:12.5px;margin-top:10px">Position on the map is estimated from the schedule. Flightradar24 shows the exact radar position.</p></div>';
+  if(fa)h+='<div class="panel" style="border-color:var(--aurora)"><h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="status air">Live</span>'+fa.no+' to '+CITY[fa.to]+'</h3><div class="air" data-air="'+fa.no+'"><span>'+fa.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+fa.to+'</span></div><div class="plstats" data-plstat="'+fa.no+'">'+plStatsHTML(fa)+'</div><div class="trk">'+trackBtns(fa,true)+'</div><p class="muted" style="font-size:12.5px;margin-top:10px">Live radar from ADS-B receivers (adsb.lol). When no signal is in range, for example over remote areas, the position is estimated from the schedule.</p></div>';
   FLIGHTS.forEach(f=>{
     const air=t>=f.d&&t<f.a, done=t>=f.a, isNext=f===next&&!air;
     const st=air?'<span class="status air">In the air</span>':done?'<span class="status">Landed</span>':isNext?'<span class="status next">Next</span>':'<span class="status">Day '+f.day+'</span>';
@@ -1131,6 +1163,7 @@ route();
 refreshData(false);
 setInterval(()=>refreshData(false),10*60e3);
 setInterval(()=>{if(cur==='map'&&!document.hidden){drawPlane();syncFabs()}},5000);
+setInterval(pollLive,15000);pollLive();
 setInterval(()=>{if(cur==='map')refreshOval(false)},5*60e3);
 addEventListener('online',()=>refreshData(true));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshData(false);softRender()}});
