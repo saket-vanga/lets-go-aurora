@@ -54,8 +54,8 @@ function ttlFor(f, now) {
   if (a && now < a + 90 * m) return 600;
   return 3600;
 }
-async function flightStatus(env, flight, date, ctx) {
-  const key = new Request(`https://cache.local/status/${flight}/${date}`);
+async function flightStatus(env, flight, date, exp, ctx) {
+  const key = new Request(`https://cache.local/status2/${flight}/${date}`);
   const cache = caches.default;
   const hit = await cache.match(key);
   if (hit) return hit.json();
@@ -66,7 +66,16 @@ async function flightStatus(env, flight, date, ctx) {
   if (r.status === 204 || r.status === 404) return { configured: true, found: false, t: Date.now() };
   if (!r.ok) return { configured: true, found: false, error: 'Status service returned ' + r.status, t: Date.now() };
   const list = await r.json();
-  const f0 = Array.isArray(list) ? list[0] : list;
+  const all = (Array.isArray(list) ? list : [list]).filter(Boolean);
+  // the list can include the same flight number on neighbouring days: pick the right one
+  let f0 = null;
+  if (exp) {
+    let best = Infinity;
+    for (const x of all) { const t = T(x.departure && x.departure.scheduledTime); if (t != null && Math.abs(t - exp) < best) { best = Math.abs(t - exp); f0 = x; } }
+    if (best > 12 * 3600e3) f0 = null;
+  } else {
+    f0 = all.find(x => x.departure && x.departure.scheduledTime && String(x.departure.scheduledTime.local || '').startsWith(date)) || null;
+  }
   const out = f0 ? {
     configured: true, found: true, t: Date.now(), status: f0.status || 'Unknown',
     dep: leg(f0.departure), arr: leg(f0.arrival),
@@ -92,7 +101,8 @@ export default {
     if (url.pathname === '/status') {
       const f = (url.searchParams.get('f') || '').toUpperCase(), d = url.searchParams.get('d') || '';
       if (!/^AY\d{1,4}$/.test(f) || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return json({ error: 'Use /status?f=AY132&d=2026-11-25' }, 400, cors);
-      try { return json(await flightStatus(env, f, d, ctx), 200, { ...cors, 'Cache-Control': 'no-store' }); }
+      const exp = parseInt(url.searchParams.get('exp'), 10) || 0;
+      try { return json(await flightStatus(env, f, d, exp, ctx), 200, { ...cors, 'Cache-Control': 'no-store' }); }
       catch (e) { return json({ configured: !!env.AERODATABOX_KEY, found: false, error: 'Status lookup failed' }, 200, cors); }
     }
     if (url.pathname !== '/flight') return json({ error: 'not found' }, 404, cors);

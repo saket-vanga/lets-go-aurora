@@ -464,7 +464,7 @@ const hm=(ms,off)=>{const d=wall(ms,off);return pad(d.getUTCHours())+':'+pad(d.g
 const dstr=(ms,off)=>{const d=wall(ms,off);return WD[d.getUTCDay()]+' '+d.getUTCDate()+' '+MO[d.getUTCMonth()]};
 
 /* ---------- trip data (from the L.G.E itinerary) ---------- */
-const CITY={SIN:'Singapore Changi',HEL:'Helsinki',TOS:'Tromsø',OUL:'Oulu'};
+const CITY={SIN:'Singapore Changi',HEL:'Helsinki',TOS:'Tromsø',OUL:'Oulu',RVN:'Rovaniemi'};
 const FLIGHTS=[
  {no:'AY132',from:'SIN',to:'HEL',dep:'2026-11-25T22:05:00+08:00',arr:'2026-11-26T05:45:00+02:00',dOff:8,aOff:2,day:1},
  {no:'AY541',from:'HEL',to:'TOS',dep:'2026-11-26T07:10:00+02:00',arr:'2026-11-26T09:40:00+01:00',dOff:2,aOff:1,day:2},
@@ -750,7 +750,7 @@ async function refreshStatus(force){
   for(const f of FLIGHTS){
     if(t<f.d-36*H||t>f.a+4*H)continue;
     const old=FST[f.no];if(!force&&old&&t-old.t<4*60e3)continue;
-    try{const r=await fetch(LIVE_API+'/status?f='+f.no+'&d='+depDate(f)).then(r=>r.json());if(r&&r.configured!==undefined){FST[f.no]=Object.assign(r,{t:Date.now()});changed=true}}catch(e){}
+    try{const r=await fetch(LIVE_API+'/status?f='+f.no+'&d='+depDate(f)+'&exp='+f.d).then(r=>r.json());if(r&&r.configured!==undefined){FST[f.no]=Object.assign(r,{t:Date.now()});changed=true}}catch(e){}
   }
   if(changed){store.set('fst',FST);softRender()}
   stBusy=false;
@@ -782,6 +782,7 @@ function gateGrid(f,si,arrival){
   else h+=cell('Terminal',si&&si.term)+cell('Gate',si&&si.gate)+cell('Check-in',si&&si.checkIn);
   h+='</div>';
   const S=FST[f.no];
+  if(!arrival&&si&&((si.s.arr&&si.s.arr.iata&&si.s.arr.iata!==f.to)||(si.s.dep&&si.s.dep.iata&&si.s.dep.iata!==f.from)))h+='<p class="ins-warn" style="grid-column:1/-1;margin-top:10px"><b>Heads up:</b> airline data shows '+f.no+' flying '+esc(si.s.dep.iata||f.from)+' → '+esc(si.s.arr.iata||f.to)+', not '+f.from+' → '+f.to+' as in your itinerary. Check with your tour manager.</p>';
   if(!arrival&&!(si&&si.gate)){
     const soon=f.d-now()<36*H;
     h+='<p class="gg-hint">'+(S&&S.configured?'The gate usually appears about 2 hours before departure.':soon?'Check the gate on the airport screens or in the Finnair app.':'Gate and live status appear the day before the flight.')+'</p>';
