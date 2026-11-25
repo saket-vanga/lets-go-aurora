@@ -11,7 +11,8 @@ cat <<'H'
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Aurora">
+<meta name="apple-mobile-web-app-title" content="Chasing Aurora">
+<meta name="application-name" content="Chasing Aurora">
 <meta name="theme-color" content="#060a16">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -27,11 +28,11 @@ cat <<'H'
 H
 } > docs/index.html
 cat > docs/manifest.webmanifest <<'H'
-{"name":"Lets Go Aurora","short_name":"Aurora","start_url":"./","display":"standalone","background_color":"#060a16","theme_color":"#060a16","icons":[{"src":"icon-180.png","sizes":"180x180","type":"image/png"},{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"}]}
+{"id":"./","name":"Chasing Aurora","short_name":"Chasing Aurora","description":"Your 13-day Finland, Norway and Sweden aurora trip: live plan, flights, map and emergency numbers.","start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#060a16","theme_color":"#060a16","icons":[{"src":"icon-180.png","sizes":"180x180","type":"image/png"},{"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}]}
 H
 cat > docs/sw.js <<'H'
-const C='aurora-v3',T='aurora-tiles-v1';
-const CORE=['./','index.html','manifest.webmanifest','icon-180.png','icon-512.png'];
+const C='aurora-v4',T='aurora-tiles-v1';
+const CORE=['./','index.html','manifest.webmanifest','icon-180.png','icon-192.png','icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C&&k!==T).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{

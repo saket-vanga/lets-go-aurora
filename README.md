@@ -1,4 +1,4 @@
-# Lets Go Aurora
+# Chasing Aurora
 
 Trip companion for the 13-day Finland · Norway · Sweden + Lofoten aurora tour (25 Nov – 7 Dec).
 Live countdowns, day-by-day plan, flights, aurora log and emergency numbers. Installable on iPhone

@@ -36,4 +36,5 @@ def png(path, S):
     data = b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR', struct.pack('>IIBBBBB', S, S, 8, 2, 0, 0, 0))+chunk(b'IDAT', zlib.compress(raw, 9))+chunk(b'IEND', b'')
     open(path, 'wb').write(data)
 png(os.path.join(root, 'icon-180.png'), 180)
+png(os.path.join(root, 'icon-192.png'), 192)
 png(os.path.join(root, 'icon-512.png'), 512)
