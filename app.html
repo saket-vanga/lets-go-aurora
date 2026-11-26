@@ -256,6 +256,7 @@ button.mini:active{transform:scale(.98)}
 .ol-facts b{color:var(--snow);font-size:14px}
 .pill{font:700 11px/1 var(--mono);padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mist)}
 .pill.good{color:var(--night);background:var(--aurora);border-color:var(--aurora)}
+.pill.low{color:var(--mist)}
 .pill.fair{color:var(--night);background:var(--sun);border-color:var(--sun)}
 .upd{font:500 11px var(--mono);color:var(--mist);letter-spacing:.04em}
 /* map */
@@ -333,7 +334,7 @@ button.mini:active{transform:scale(.98)}
 .plstats div{padding:10px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid var(--line)}
 .plstats b{display:block;font:700 18px var(--mono);font-variant-numeric:tabular-nums}
 .plstats .radar{color:var(--aurora);font-size:15px}
-.plstats span{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mist)}
+.plstats span{font:600 12.5px var(--body);color:var(--mist)}
 /* install pop-up */
 .ins-back{position:fixed;inset:0;z-index:40;background:rgba(3,6,14,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;animation:fadein .25s ease both}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
@@ -818,7 +819,7 @@ const airborne=t=>FLIGHTS.find(f=>(t>=f.d&&t<f.a)||(liveFor(f)&&liveFor(f).ac.al
 function plStatsHTML(f){
   const s=planeNow(f);if(s.k!=='air')return '';
   const left=f.a-now(),hh=Math.floor(left/H),mm=Math.floor(left%H/6e4);
-  return '<div><b>'+Math.round(s.flown).toLocaleString()+'</b><span>km flown</span></div><div><b>'+Math.round(s.left).toLocaleString()+'</b><span>km to go</span></div><div><b>'+hh+'h '+pad(mm)+'</b><span>to landing</span></div>'+(s.live?'<div><b>'+(isFinite(+s.live.ac.alt)?Math.round(+s.live.ac.alt).toLocaleString():'—')+'</b><span>feet</span></div><div><b>'+(s.live.ac.gs?Math.round(s.live.ac.gs*1.852):'—')+'</b><span>km/h</span></div><div><b class="radar">● '+Math.round(s.live.age)+'s</b><span>radar · '+esc(s.live.ac.flight||'')+'</span></div>':'<div style="grid-column:1/-1;border-style:dashed"><span>Estimated from schedule'+(LIVE_API.startsWith('__')?'':navigator.onLine?' · looking for radar signal…':' · offline')+'</span></div>');
+  return '<div><b>'+Math.round(s.flown).toLocaleString()+'</b><span>km flown</span></div><div><b>'+Math.round(s.left).toLocaleString()+'</b><span>km to go</span></div><div><b>'+hh+'h '+pad(mm)+'</b><span>to landing</span></div>'+(s.live?'<div><b>'+(isFinite(+s.live.ac.alt)?Math.round(+s.live.ac.alt).toLocaleString():'—')+'</b><span>feet</span></div><div><b>'+(s.live.ac.gs?Math.round(s.live.ac.gs*1.852):'—')+'</b><span>km/h</span></div><div><b class="radar">● '+Math.round(s.live.age)+'s</b><span>radar · '+esc(s.live.ac.flight||'')+'</span></div>':'<div style="grid-column:1/-1;border-style:dashed"><span>Position estimated from the schedule'+(LIVE_API.startsWith('__')?'':navigator.onLine?' · looking for radar signal…':' · offline')+'</span></div>');
 }
 function trackBtns(f,air){
   return '<a class="btn sm" href="'+FR24(f)+'" target="_blank" rel="noopener">Flightradar24</a><a class="btn sm" href="'+FAW(f)+'" target="_blank" rel="noopener">FlightAware</a>'+(air?'<button type="button" class="btn sm primary" data-plane="1">'+PIN+'Watch on map</button>':'');
@@ -948,8 +949,6 @@ function mapExtra(){
   const f=airborne(now());
   if(f)h+='<div class="panel"><h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="status air">In the air</span>'+f.no+' '+f.from+' → '+f.to+'</h3><div class="air" data-air="'+f.no+'"><span>'+f.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+f.to+'</span></div><div class="plstats" data-plstat="'+f.no+'">'+plStatsHTML(f)+'</div><div class="trk">'+trackBtns(f,true)+'</div></div>';
   h+='<div class="panel" data-geobox></div>';
-  h+='<div class="panel"><h3>Each leg in Google Maps</h3><div class="places">'+LEGS.map(([a,b,dn])=>'<div class="place"><span><span class="muted" style="font:500 11px var(--mono)">D'+dn+'</span> &nbsp;'+esc(STOPS[a].name)+' → '+esc(STOPS[b].name)+'</span><a class="btn sm ice" href="'+gd(STOPS[b].q,STOPS[a].q)+'&travelmode=driving" target="_blank" rel="noopener">'+NAV+'Route</a></div>').join('')+'</div></div>';
-  h+='<div class="panel"><h3>Every stop</h3>'+DAYS.filter(d=>d.places.length).map(d=>'<div style="margin-top:10px"><div class="eyebrow" style="color:var(--mist);margin-bottom:2px">Day '+d.n+' · '+esc(d.place)+'</div>'+placesHTML(d)+'</div>').join('')+'</div>';
   return h;
 }
 function renderMap(el){
@@ -1106,53 +1105,47 @@ function showInstall(force){
 }
 function closeInstall(){const root=$('#installRoot');root.innerHTML='';root.hidden=true}
 const isPhoneLike=isIOS||isAndroid||matchMedia('(pointer:coarse)').matches;
+function auroraTonight(i){
+  const d=DAYS[i];if(!d.aurora)return '';
+  const o=outlook(i);
+  let h='<div class="panel"><div class="ol-row"><h2>Aurora hunt tonight</h2>'+(o?'<span class="pill '+o.g+'">'+GRADE[o.g]+' chance</span>':'')+'</div>';
+  h+='<p class="muted" style="margin-top:6px">'+esc(d.aurora.how)+'</p>';
+  if(o)h+='<div class="meter"><i style="width:'+Math.round(o.s*100)+'%"></i></div><div class="ol-facts"><span>Cloud <b>'+(o.cloud==null?'?':o.cloud+'%')+'</b></span><span>Kp <b>'+(o.kp==null?'?':o.kp.toFixed(1))+'</b></span><span>Best <b>18:00–02:00</b></span></div>';
+  return h+'</div>';
+}
+function nextDayCard(d,label){
+  return '<button type="button" class="panel" data-goto="'+d.n+'" style="text-align:left;width:100%"><h3>'+label+' · '+dstr(d.start,d.tz)+'</h3><h2>'+esc(d.title)+'</h2><p class="muted" style="margin-top:6px">'+esc(d.place)+'</p></button>';
+}
 function vNow(){
   const t=now(),p=phase(t);
-  const inAir=FLIGHTS.find(f=>t>=f.d&&t<f.a);
-  const next=FLIGHTS.find(f=>f.d>t);
+  const inAir=airborne(t), next=FLIGHTS.find(f=>f.d>t);
   let h='';
   if(p.k==='pre'){
     const f=FLIGHTS[0];
-    h+=installTip();
     h+='<div><div class="eyebrow">Departs '+dstr(f.d,8)+' · Changi</div><h1>Aurora, here we come.</h1></div>';
     h+=flightHero(f,'Your first flight');
     h+=quickActions(null);
-    h+='<div class="panel stats"><div><b>13</b><span>days</span></div><div><b>3</b><span>countries</span></div><div><b>8</b><span>aurora hunts</span></div></div>';
-    const s=sunLine(DAYS[1]);
-    h+='<div class="grid2"><div class="mini"><span class="k">First stop · Tromsø</span><span class="v">'+s.v+'</span><span class="s">'+s.s+'</span></div>'+wxMini(1)+'</div>';
-    h+=outlookPanel(1);
-    h+='<div class="panel"><h3>Day 1 · '+dstr(DAYS[0].start,8)+'</h3>'+planList(DAYS[0])+'<div style="margin-top:12px">'+placesHTML(DAYS[0])+'</div></div>';
-    h+='<div class="panel" data-geobox></div>';
-    h+=tripBar(-1);
+    h+=nextDayCard(DAYS[1],'First stop');
     return h;
   }
   if(p.k==='post'){
-    h+='<div><div class="eyebrow">Trip complete · Landed '+dstr(FLIGHTS[3].a,8)+'</div><h1>Home sweet home.</h1></div>';
-    h+='<div class="panel stats"><div><b>13</b><span>days</span></div><div><b>8</b><span>aurora hunts</span></div><div><b>4</b><span>flights</span></div></div>';
-    h+='<p class="muted">Flip through the Days tab to relive it.</p>';
-    h+=tripBar(13);
+    h+='<div><div class="eyebrow">Landed '+dstr(FLIGHTS[3].a,8)+'</div><h1>Home sweet home.</h1></div>';
+    h+='<p class="muted">Flip through the Days tab to relive the trip.</p>';
     return h;
   }
   const day=DAYS[p.i];
-  h+=installTip();
-  h+='<div><div class="eyebrow">Day '+day.n+' of 13 · '+dstr(day.start,day.tz)+' · '+esc(day.place)+'</div><h1>'+esc(day.title)+'</h1></div>';
+  h+='<div><div class="eyebrow">Day '+day.n+' of 13 · '+dstr(day.start,day.tz)+'</div><h1>'+esc(day.title)+'</h1></div>';
   if(inAir){
-    h+='<div class="panel"><h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="status air">In the air</span>'+inAir.no+' to '+CITY[inAir.to]+'</h3>'+cdHTML(inAir.a)+'<div class="air" data-air="'+inAir.no+'"><span>'+inAir.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+inAir.to+'</span></div><p class="cd-sub">Lands <b>'+hm(inAir.a,inAir.aOff)+'</b> local time ('+TZN[inAir.aOff]+').</p><div class="plstats" data-plstat="'+inAir.no+'">'+plStatsHTML(inAir)+'</div><div class="trk">'+trackBtns(inAir,true)+'</div></div>';
+    h+='<div class="panel"><h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="status air">In the air</span>'+inAir.no+' to '+CITY[inAir.to]+'</h3><div class="air" data-air="'+inAir.no+'"><span>'+inAir.from+'</span><div class="bar"><i></i><em>'+PLANE+'</em></div><span>'+inAir.to+'</span></div><div class="plstats" data-plstat="'+inAir.no+'">'+plStatsHTML(inAir)+'</div><div class="trk">'+trackBtns(inAir,true)+'</div></div>';
   }else if(next&&next.d-t<36*H){
     h+=flightHero(next,'Your next flight');
-  }else if(false){
-    h+='<div class="panel"><h3>Next flight · '+next.no+' '+next.from+' → '+next.to+'</h3>'+cdHTML(next.d)+'<p class="cd-sub">Departs <b>'+hm(next.d,next.dOff)+'</b> '+TZN[next.dOff]+' from '+CITY[next.from]+'.</p><div class="trk">'+trackBtns(next,false)+'</div></div>';
   }
-  const s=sunLine(day);
   h+=quickActions(day);
-  h+='<div class="grid2">'+hotelCard(day)+auroraCard(day)+wxMini(p.i)+'<div class="mini"><span class="k">Daylight</span><span class="v">'+s.v+'</span><span class="s">'+s.s+'</span></div></div>';
-  if(day.aurora) h+=outlookPanel(p.i);
-  h+='<div class="panel"><h3>Today'+(day.opt?' · <span class="chip opt">has optional add-on</span>':'')+'</h3>'+planList(day)+(day.meals.length?'<div class="row" style="margin-top:14px"><span class="k">Meals</span><div class="chips">'+day.meals.map(m=>'<span class="chip">'+esc(m)+'</span>').join('')+'</div></div>':'')+'</div>';
-  if(day.places.length) h+='<div class="panel"><h3>Open in Google Maps</h3>'+placesHTML(day)+'</div>';
-  if(day.cc!=='SG') h+='<div class="panel" data-geobox></div>';
+  h+='<div class="grid2">'+hotelCard(day)+wxMini(p.i)+'</div>';
+  h+=auroraTonight(p.i);
+  h+='<div class="panel"><h3>Today</h3>'+planList(day)+(day.meals.length?'<div class="row" style="margin-top:14px"><span class="k">Meals</span><div class="chips">'+day.meals.map(m=>'<span class="chip">'+esc(m)+'</span>').join('')+'</div></div>':'')+'</div>';
   const tm=DAYS[p.i+1];
-  if(tm) h+='<button type="button" class="panel" data-goto="'+tm.n+'" style="text-align:left;width:100%"><h3>Tomorrow · Day '+tm.n+' · '+dstr(tm.start,tm.tz)+'</h3><h2>'+esc(tm.title)+'</h2><p class="muted" style="margin-top:6px">'+esc(tm.place)+(tm.hotel?' · '+esc(tm.hotel):'')+'</p></button>';
-  h+=tripBar(p.i);
+  if(tm)h+=nextDayCard(tm,'Tomorrow');
   return h;
 }
 
@@ -1194,7 +1187,7 @@ function vFlights(){
     if(!done&&!air)h+=gateGrid(f,si,false);
     if(done&&si&&si.belt)h+=gateGrid(f,si,true);
     if(isNext)h+='<div style="grid-column:1/-1">'+cdHTML(depT)+'<p class="cd-sub">until departure</p></div>';
-    h+='<div class="foot"><span>Singapore time <b>'+hm(depT,8)+' → '+hm(arrT,8)+'</b></span><span>'+Math.round(f.km).toLocaleString()+' km</span></div>';
+    h+='<div class="foot"><span>Singapore time <b>'+hm(depT,8)+' → '+hm(arrT,8)+'</b></span></div>';
     if(!done)h+='<div class="trk">'+trackBtns(f,air)+'</div>';
     h+='</div>';
   });
@@ -1234,7 +1227,6 @@ function vTools(){
   h+='<div class="panel"><h2 style="margin-bottom:10px">Money</h2><div class="conv"><input class="field" id="amt" inputmode="decimal" value="'+esc(store.get('amt','100'))+'" aria-label="Amount"><select class="field" id="cur" aria-label="Currency">'+['EUR','NOK','SEK','SGD'].map(c=>'<option'+(c===store.get('cur','EUR')?' selected':'')+'>'+c+'</option>').join('')+'</select></div><div class="conv-out" id="convOut"></div>';
   h+='<div class="rates">'+['NOK','SEK','EUR'].map(c=>'<label for="r'+c+'">1 SGD = '+c+'<input class="field" id="r'+c+'" data-rate="'+c+'" inputmode="decimal" value="'+rates[c]+'"></label>').join('')+'</div><p class="muted" style="font-size:12.5px;margin-top:8px">Starting rates are rough guesses. Type in today’s rate from your bank app.</p></div>';
   h+='<div class="panel"><h2 style="margin-bottom:10px">Aurora photos on a phone</h2><ul class="tips"><li><b>Night mode on, flash off.</b> Rest the phone on a tripod or a rail and the exposure stretches up to 30 seconds.</li><li><b>Focus</b> on a bright star or a distant light, then hold still until it finishes.</li><li><b>Dim your screen</b> and keep away from lights for 15 minutes so your eyes adapt.</li><li><b>Faint grey arcs</b> often show green on camera. Shoot them anyway.</li><li><b>Warm the battery</b> in an inside pocket between shots.</li></ul></div>';
-  h+='<div class="panel"><div class="ol-row" style="margin-bottom:6px"><h2>Live data</h2><button type="button" class="btn sm" id="refreshData">Refresh</button></div><p class="muted" style="font-size:13.5px">Weather '+(WX?'updated '+ago(WX.t):'not loaded yet')+' · aurora Kp '+(KP?'updated '+ago(KP.t):'not loaded yet')+'. Sources: Open-Meteo and NOAA Space Weather Prediction Center. Saved for offline use.</p></div>';
   if(!standalone())h+='<div class="panel"><h2 style="margin-bottom:6px">Add to Home Screen</h2><p class="muted" style="font-size:14px">Opens full screen and works with no signal.</p><div class="btns"><button type="button" class="btn primary" id="openInstall">Show me how</button></div></div>';
   h+='<div class="panel"><h2 style="margin-bottom:6px">Preview a day</h2><p class="muted" style="font-size:14px;margin-bottom:10px">See what the Now tab will show on any day of the trip.</p><select class="field" id="pretendSel" aria-label="Preview day"><option value="">Live (real time)</option><option value="pre">The day before departure</option><option value="air">Mid-flight on AY132</option>'+DAYS.map(d=>'<option value="'+d.n+'">Day '+d.n+' · '+dstr(d.start,d.tz)+' · '+esc(d.title)+'</option>').join('')+'<option value="post">After landing home</option></select></div>';
   h+='<div class="panel"><h2 style="margin-bottom:8px">Fine print from the itinerary</h2><div class="fine"><p>If the weather is poor, the tour manager may skip the aurora walk. The Northern Lights are natural and can’t be guaranteed.</p><p>Hotels and the order of days can change with glass igloo availability, domestic flight schedules or weather.</p><p>Snow activities depend on conditions. Without enough snow the snowmobile ride becomes an extra group meal, and the husky sledge becomes a husky cart or a shorter ride. No refunds for the horse, reindeer farm, Arctic train or cable car.</p><p>The group can hire a bus for a longer aurora hunt if everyone agrees at least 3 days ahead. Costs are split equally.</p><p class="muted">Tour by L.G.E Travel (Let’s Go Europe).</p></div></div>';
