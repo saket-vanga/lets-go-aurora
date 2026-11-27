@@ -270,7 +270,7 @@ button.mini:active{transform:scale(.98)}
 .ol-grade.good{color:var(--aurora)}.ol-grade.fair{color:var(--sun)}.ol-grade.low{color:var(--mist)}
 .ol-facts{display:flex;gap:16px;margin-top:10px;font:500 12px var(--mono);color:var(--mist);flex-wrap:wrap}
 .ol-facts b{color:var(--snow);font-size:14px}
-.pill{font:700 11px/1 var(--mono);padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mist)}
+.pill{font:700 12px/1 var(--body);padding:5px 10px;border-radius:999px;border:1px solid var(--line);color:var(--mist);white-space:nowrap;flex:0 0 auto}
 .pill.good{color:var(--night);background:var(--aurora);border-color:var(--aurora)}
 .pill.fair{color:var(--night);background:var(--sun);border-color:var(--sun)}
 .upd{font:500 11px var(--mono);color:var(--mist);letter-spacing:.04em}
@@ -387,6 +387,41 @@ button.mini:active{transform:scale(.98)}
 .ins-arrow.up{animation-name:bobup}
 @keyframes bobup{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @media (prefers-reduced-motion:reduce){.ins-arrow,.ins,.ins-back{animation:none}}
+/* days timeline */
+.tl{position:relative;display:flex;flex-direction:column;gap:12px;padding-left:22px}
+.tl::before{content:"";position:absolute;left:6px;top:14px;bottom:20px;width:2px;border-radius:1px;background:linear-gradient(180deg,var(--violet),var(--aurora) 40%,var(--ice))}
+.tl-sec{position:relative;display:flex;flex-direction:column;gap:2px;margin:10px 0 2px}
+.tl-sec::before{content:"";position:absolute;left:-22px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--night);border:3px solid var(--violet)}
+.tl-sec b{font:800 20px/1.2 var(--display)}
+.tl-sec span{font-size:13.5px;color:var(--mist)}
+.tl .day::before{content:"";position:absolute;left:-20px;top:30px;width:10px;height:10px;border-radius:50%;background:var(--line)}
+.tl .day.past::before{background:var(--mist)}
+.tl .day.today::before{background:var(--aurora);box-shadow:0 0 0 4px rgba(111,245,196,.25),0 0 12px var(--aurora)}
+.dno{width:58px;height:66px;gap:1px}
+.dno b{font:800 24px/1 var(--display)}
+.dno span{font:600 11px/1 var(--body);letter-spacing:0;text-transform:none}
+.dmeta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:600 13px var(--body);color:var(--mist)}
+.done{display:inline-flex;align-items:center;gap:4px;color:var(--mist);font:600 12px var(--body)}
+.done svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.day-h h2{margin-top:4px}
+.dplace{font-size:14px;color:var(--mist);margin-top:2px}
+.dsum{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;font-size:13px;color:var(--snow)}
+.dsum span{display:inline-flex;align-items:center;gap:5px;min-width:0}
+.dsum svg,.tile svg{width:16px;height:16px;flex:0 0 auto;fill:none;stroke:var(--mist);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.dsum .a{color:var(--aurora)}
+.dsum .a svg{stroke:var(--aurora)}
+.day[open] .dsum{display:none}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tile{display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:14px;background:rgba(0,0,0,.22);border:1px solid var(--line);min-width:0}
+.tile svg{width:18px;height:18px;margin-bottom:4px}
+.tk{font:600 12px var(--body);color:var(--mist)}
+.tv{font:600 15px/1.3 var(--body)}
+.ts{font-size:12.5px;color:var(--mist)}
+.adot{display:block;width:6px;height:6px;border-radius:50%;background:var(--aurora);box-shadow:0 0 6px var(--aurora);margin:3px auto 0}
+.adot.off{background:transparent;box-shadow:none}
+.legend .adot{display:inline-block;margin:0}
+.strip button{height:auto;padding:8px 0 6px}
+.aur{border-style:solid}
 /* sections */
 .sec{display:flex;align-items:center;gap:10px;font:700 15px var(--body);color:var(--snow);margin:10px 2px -4px}
 .sec::after{content:"";flex:1;height:1px;background:var(--line)}
@@ -1182,24 +1217,45 @@ function vNow(){
   return h;
 }
 
+const SEGS=[{from:1,to:1,name:'Fly out',sub:'Singapore → Helsinki'},{from:2,to:5,name:'Norway',sub:'Tromsø, the fjords, Lofoten, Narvik'},{from:6,to:7,name:'Sweden',sub:'Arctic Circle Train into Lapland'},{from:8,to:12,name:'Finland',sub:'Lapland, Rovaniemi, Helsinki'},{from:13,to:13,name:'Fly home',sub:'Helsinki → Singapore'}];
+const DI={
+ bed:'<svg viewBox="0 0 24 24"><path d="M3 18v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7M3 14h18M7 9V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2"/></svg>',
+ aur:'<svg viewBox="0 0 24 24"><path d="M2 18c3-7 7-11 10-11s7 4 10 11"/><path d="M6 18c2-4 4-6 6-6s4 2 6 6"/></svg>',
+ sun:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg>',
+ temp:'<svg viewBox="0 0 24 24"><path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0z"/></svg>',
+ food:'<svg viewBox="0 0 24 24"><path d="M7 3v8a2 2 0 0 0 2 2v8M7 3v6M11 3v6M17 3c-2 2-2 6 0 8v10"/></svg>',
+ check:'<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>'
+};
 function vDays(){
   const p=phase(now());const ti=p.k==='pre'?-1:p.k==='post'?13:p.i;
-  let h='<div><div class="eyebrow">25 Nov – 7 Dec · Norway · Sweden · Finland</div><h1>13 days</h1></div><p class="day-hint">Tap a day to open it.</p>';
-  h+='<div class="strip" id="strip">'+DAYS.map((d,k)=>{const w=wall(d.start,d.tz);return '<button type="button" data-jump="'+d.n+'" class="'+(k<ti?'past':k===ti?'today':'')+'"><span>D'+d.n+'</span><b>'+w.getUTCDate()+'</b><span>'+MO[w.getUTCMonth()]+'</span></button>'}).join('')+'</div>';
-  DAYS.forEach((d,k)=>{
-    const cls=k<ti?'past':k===ti?'today':'';
-    h+='<details class="panel day '+cls+'" id="day-'+d.n+'"'+(k===ti||(ti<0&&k<2)||ti>=13?' open':'')+'><summary class="day-h"><div class="dno"><b>'+d.n+'</b><span>'+WD[wall(d.start,d.tz).getUTCDay()].toUpperCase()+'</span></div><div style="min-width:0;flex:1"><div class="eyebrow" style="color:var(--mist)">'+dstr(d.start,d.tz)+' · '+esc(d.place)+'</div><h2 style="margin-top:4px">'+esc(d.title)+'</h2><div class="chips" style="margin-top:8px"><span class="chip cc">'+CC[d.cc]+'</span>'+(k===ti?'<span class="badge">Today</span>':'')+(d.opt?'<span class="chip opt">Optional add-on</span>':'')+'</div></div><span class="chev" aria-hidden="true"></span></summary>';
-    h+='<div class="day-body">'+planList(d);
-    if(d.meals.length) h+='<div class="row"><span class="k">Meals</span><div class="chips">'+d.meals.map(m=>'<span class="chip">'+esc(m)+'</span>').join('')+'</div></div>';
-    h+='<div class="row"><span class="k">Stay</span><span>'+(d.hotel?esc(d.hotel)+' <span class="muted">or similar</span>':'<span class="muted">'+esc(d.night)+'</span>')+'</span></div>';
-    if(d.cc!=='SG'){const s=sunLine(d);h+='<div class="row"><span class="k">Sun</span><span>'+s.v+' <span class="muted">· '+s.s+'</span></span></div>'}
-    const fw=dayWx(k);if(fw)h+='<div class="row"><span class="k">Weather</span><span>'+Math.round(fw.max)+'° / '+Math.round(fw.min)+'° <span class="muted">· '+WMO(fw.code)+'</span></span></div>';
-    if(d.aurora){const o=outlook(k);if(o)h+='<div class="row"><span class="k">Outlook</span><span class="pill '+o.g+'">'+GRADE[o.g]+' aurora chance</span><span class="muted" style="font-size:13px">'+(o.cloud!=null?o.cloud+'% cloud':'')+(o.kp!=null?' · Kp '+o.kp.toFixed(1):'')+'</span></div>'}
-    if(d.places.length)h+=placesHTML(d);
-    if(d.aurora){h+='<div class="aur"><span><b>Aurora hunt #'+d.aurora.n+' of 8</b><br><span class="muted">'+esc(d.aurora.how)+'</span></span></div>'}
-    h+='</div></details>';
+  let h='<div><div class="eyebrow">25 Nov – 7 Dec · Norway · Sweden · Finland</div><h1>13 days</h1></div>';
+  h+='<div class="strip" id="strip">'+DAYS.map((d,k)=>{const w=wall(d.start,d.tz);return '<button type="button" data-jump="'+d.n+'" class="'+(k<ti?'past':k===ti?'today':'')+'"><span>'+WD[w.getUTCDay()]+'</span><b>'+w.getUTCDate()+'</b><span>'+MO[w.getUTCMonth()]+'</span>'+(d.aurora?'<i class="adot" title="Aurora hunt"></i>':'<i class="adot off"></i>')+'</button>'}).join('')+'</div>';
+  h+='<div class="legend" style="margin-top:-6px"><span><i class="adot"></i>&nbsp;Aurora hunt night</span><span>Tap a day to open it</span></div>';
+  h+='<div class="tl">';
+  SEGS.forEach(sg=>{
+    h+='<div class="tl-sec"><b>'+sg.name+'</b><span>'+sg.sub+(sg.from!==sg.to?' · Days '+sg.from+'–'+sg.to:'')+'</span></div>';
+    DAYS.slice(sg.from-1,sg.to).forEach(d=>{
+      const k=d.n-1,cls=k<ti?'past':k===ti?'today':'';
+      const w=wall(d.start,d.tz),fw=dayWx(k),o=d.aurora?outlook(k):null;
+      h+='<details class="panel day '+cls+'" id="day-'+d.n+'"'+(k===ti||(ti<0&&k<2)||ti>=13?' open':'')+'><summary class="day-h">';
+      h+='<div class="dno"><span>'+WD[w.getUTCDay()]+'</span><b>'+w.getUTCDate()+'</b><span>'+MO[w.getUTCMonth()]+'</span></div>';
+      h+='<div style="min-width:0;flex:1"><div class="dmeta"><span>Day '+d.n+'</span>'+(k===ti?'<span class="badge">Today</span>':k<ti?'<span class="done">'+DI.check+'Done</span>':'')+(d.opt?'<span class="chip opt">Optional add-on</span>':'')+'</div>';
+      h+='<h2>'+esc(d.title)+'</h2><p class="dplace">'+esc(d.place)+'</p>';
+      h+='<div class="dsum">'+(d.hotel?'<span>'+DI.bed+esc(d.hotel)+'</span>':'<span>'+DI.bed+esc(d.night)+'</span>')+(d.aurora?'<span class="a">'+DI.aur+'Hunt #'+d.aurora.n+(o?' · '+GRADE[o.g]:'')+'</span>':'')+(fw?'<span>'+DI.temp+Math.round(fw.max)+'° / '+Math.round(fw.min)+'°</span>':'')+'</div>';
+      h+='</div><span class="chev" aria-hidden="true"></span></summary>';
+      h+='<div class="day-body">'+planList(d);
+      h+='<div class="tiles">';
+      h+='<div class="tile">'+DI.bed+'<span class="tk">Stay</span><span class="tv">'+(d.hotel?esc(d.hotel):esc(d.night))+'</span>'+(d.hotel?'<span class="ts">or similar</span>':'')+'</div>';
+      h+='<div class="tile">'+DI.food+'<span class="tk">Meals</span><span class="tv">'+(d.meals.length?esc(d.meals.join(', ')):'On your own')+'</span></div>';
+      if(fw)h+='<div class="tile">'+DI.temp+'<span class="tk">Weather</span><span class="tv">'+Math.round(fw.max)+'° / '+Math.round(fw.min)+'°</span><span class="ts">'+WMO(fw.code)+'</span></div>';
+      if(d.cc!=='SG'){const sl=sunLine(d);h+='<div class="tile">'+DI.sun+'<span class="tk">Daylight</span><span class="tv">'+sl.v+'</span><span class="ts">'+sl.s+'</span></div>'}
+      h+='</div>';
+      if(d.aurora){h+='<div class="aur"><span><b>Aurora hunt #'+d.aurora.n+' of 8</b><br><span class="muted">'+esc(d.aurora.how)+'</span></span>'+(o?'<span class="pill '+o.g+'">'+GRADE[o.g]+' chance</span>':'')+'</div>';if(o)h+='<p class="muted" style="font-size:13px;margin-top:-4px">'+(o.cloud!=null?o.cloud+'% cloud':'')+(o.kp!=null?' · Kp '+o.kp.toFixed(1):'')+' between 18:00 and 02:00</p>'}
+      if(d.places.length)h+='<div><h3 style="margin-bottom:4px">Open in Google Maps</h3>'+placesHTML(d)+'</div>';
+      h+='</div></details>';
+    });
   });
-  return h;
+  return h+'</div>';
 }
 
 function vFlights(){
